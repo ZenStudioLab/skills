@@ -25,7 +25,7 @@ Use `npx skills` to install skills directly:
 npx skills add ZenStudioLab/skills
 
 # Install specific skills
-npx skills add ZenStudioLab/skills --skill lession-decision-records
+npx skills add ZenStudioLab/skills --skill lesson-decision-records
 
 # List available skills
 npx skills add ZenStudioLab/skills --list
