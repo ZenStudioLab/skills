@@ -14,6 +14,7 @@ Skills are markdown files that give AI agents specialized knowledge and workflow
 ## 🚀 Active Skills
 - **Playwright Extension Testing**: Gold-standard E2E for MV3/WXT extensions.
 - **Lesson Decision Records**: Systematic recording of AI mistakes and learnings using ADR-inspired format.
+- **Context Hub Get API Docs**: Fetch current API documentation for third-party libraries and SDKs via chub CLI.
 
 ## Installation
 
@@ -26,6 +27,7 @@ npx skills add ZenStudioLab/skills
 
 # Install specific skills
 npx skills add ZenStudioLab/skills --skill lesson-decision-records
+npx skills add ZenStudioLab/skills --skill get-api-docs
 
 # List available skills
 npx skills add ZenStudioLab/skills --list
@@ -58,6 +60,9 @@ Once installed, just ask your agent to help with tasks:
 
 "Create a Lesson Decision Record for a recent bug"
 → Uses Lesson Decision Records skill
+
+"Get the latest OpenAI API documentation"
+→ Uses Context Hub Get API Docs skill
 
 ## 🏗️ Structure
 - `skills/`: Specialized skill packages.

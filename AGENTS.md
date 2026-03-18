@@ -7,7 +7,7 @@ This is a collection of AI agent skills focused on testing, development, and eng
 **Key Components:**
 - Skills repository with markdown-based skill definitions
 - Integration with skills.sh for agent skill management
-- Focus on Playwright extension testing and lesson decision records
+- Focus on Playwright extension testing, lesson decision records, and API documentation fetching
 - Git-based distribution and versioning
 
 **Architecture:**
