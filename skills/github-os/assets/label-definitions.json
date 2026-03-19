@@ -1,0 +1,112 @@
+{
+  "type": {
+    "feature": {
+      "name": "type:feature",
+      "color": "0e8a16",
+      "description": "New features and enhancements"
+    },
+    "bug": {
+      "name": "type:bug",
+      "color": "d73a4a",
+      "description": "Bug fixes and error corrections"
+    },
+    "chore": {
+      "name": "type:chore",
+      "color": "fef2c0",
+      "description": "Maintenance and refactoring"
+    },
+    "research": {
+      "name": "type:research",
+      "color": "d4c5f9",
+      "description": "Research spikes and investigations"
+    }
+  },
+  "priority": {
+    "p0": {
+      "name": "priority:p0",
+      "color": "b60205",
+      "description": "Critical - blocks release"
+    },
+    "p1": {
+      "name": "priority:p1",
+      "color": "d93f0b",
+      "description": "High - next sprint"
+    },
+    "p2": {
+      "name": "priority:p2",
+      "color": "fbca04",
+      "description": "Medium - backlog"
+    },
+    "p3": {
+      "name": "priority:p3",
+      "color": "0e8a16",
+      "description": "Low - nice to have"
+    }
+  },
+  "area": {
+    "ui": {
+      "name": "area:ui",
+      "color": "1d76db",
+      "description": "User interface and UX"
+    },
+    "engine": {
+      "name": "area:engine",
+      "color": "5319e7",
+      "description": "Core logic and business rules"
+    },
+    "seo": {
+      "name": "area:seo",
+      "color": "c2e0c6",
+      "description": "SEO and marketing"
+    },
+    "infra": {
+      "name": "area:infra",
+      "color": "0052cc",
+      "description": "Infrastructure and DevOps"
+    },
+    "dx": {
+      "name": "area:dx",
+      "color": "e99695",
+      "description": "Developer experience"
+    },
+    "docs": {
+      "name": "area:docs",
+      "color": "d4c5f9",
+      "description": "Documentation"
+    },
+    "security": {
+      "name": "area:security",
+      "color": "b60205",
+      "description": "Security and authentication"
+    },
+    "performance": {
+      "name": "area:performance",
+      "color": "fbca04",
+      "description": "Performance optimization"
+    }
+  },
+  "status": {
+    "blocked": {
+      "name": "status:blocked",
+      "color": "d73a4a",
+      "description": "Blocked by dependency"
+    },
+    "llm-ready": {
+      "name": "status:llm-ready",
+      "color": "0e8a16",
+      "description": "Ready for LLM implementation"
+    },
+    "needs-context": {
+      "name": "status:needs-context",
+      "color": "fbca04",
+      "description": "Needs more context or clarification"
+    }
+  },
+  "module": {
+    "_template": {
+      "name": "module:{name}",
+      "color": "0052cc",
+      "description": "Related to {name} module"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug] "
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What's the bug?
+      placeholder: "SSO login redirects to 404 page"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Navigate to login page
+        2. Click "Sign in with Google"
+        3. Complete Google OAuth
+        4. Redirected to /404
+    validations:
+      required: true
+      
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen?
+      placeholder: "Should redirect to /dashboard"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happens?
+      placeholder: "Redirects to /404 page"
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+    validations:
+      required: true
+      
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      description: Which module is affected?
+      placeholder: "module:api"
+      
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Environment, logs, related issues
+      placeholder: |
+        - Environment: production
+        - Error logs: [paste here]
+        - Related: #123
+        - Architecture: ./docs/architecture.md#auth

@@ -1,0 +1,179 @@
+{
+  "examples": [
+    {
+      "name": "Single Repository",
+      "config": {
+        "projectName": "MyApp",
+        "docsDir": "./docs",
+        "repos": ["company/myapp"],
+        "modules": [
+          {
+            "name": "main",
+            "path": "./src",
+            "type": "app",
+            "description": "Main application"
+          }
+        ],
+        "issueTracking": "github"
+      }
+    },
+    {
+      "name": "Monorepo (Turborepo + pnpm)",
+      "config": {
+        "projectName": "Platform",
+        "docsDir": "./docs",
+        "repos": ["company/platform"],
+        "modules": [
+          {
+            "name": "web",
+            "path": "./apps/web",
+            "type": "app",
+            "description": "Web application (React + Next.js)"
+          },
+          {
+            "name": "mobile",
+            "path": "./apps/mobile",
+            "type": "app",
+            "description": "Mobile application (React Native)"
+          },
+          {
+            "name": "api",
+            "path": "./services/api",
+            "type": "service",
+            "description": "REST API service (Node.js + Express)"
+          },
+          {
+            "name": "worker",
+            "path": "./services/worker",
+            "type": "service",
+            "description": "Background worker (Bull + Redis)"
+          },
+          {
+            "name": "ui",
+            "path": "./packages/ui",
+            "type": "package",
+            "description": "Shared UI component library"
+          }
+        ],
+        "issueTracking": "github",
+        "githubProject": {
+          "url": "https://github.com/orgs/company/projects/1",
+          "id": 1
+        }
+      }
+    },
+    {
+      "name": "Multi-repo System",
+      "config": {
+        "projectName": "E-commerce Platform",
+        "docsDir": "./docs",
+        "repos": [
+          "company/web-app",
+          "company/api",
+          "company/mobile"
+        ],
+        "modules": [
+          {
+            "name": "web",
+            "path": "./",
+            "type": "app",
+            "description": "Web storefront"
+          }
+        ],
+        "issueTracking": "github",
+        "primaryRepo": "company/web-app",
+        "labels": {
+          "customAreas": ["checkout", "inventory", "shipping"]
+        }
+      }
+    },
+    {
+      "name": "Monorepo with Submodules",
+      "config": {
+        "projectName": "Enterprise Platform",
+        "docsDir": "./docs",
+        "repos": [
+          "company/platform",
+          "company/legacy-api"
+        ],
+        "modules": [
+          {
+            "name": "frontend",
+            "path": "./apps/frontend",
+            "type": "app"
+          },
+          {
+            "name": "api",
+            "path": "./services/api",
+            "type": "service"
+          },
+          {
+            "name": "legacy",
+            "path": "./external/legacy-api",
+            "type": "service",
+            "description": "Legacy API (git submodule)"
+          }
+        ],
+        "issueTracking": "github",
+        "primaryRepo": "company/platform"
+      }
+    },
+    {
+      "name": "Nx Monorepo",
+      "config": {
+        "projectName": "Nx Platform",
+        "docsDir": "./docs",
+        "repos": ["company/nx-platform"],
+        "modules": [
+          {
+            "name": "admin",
+            "path": "./apps/admin",
+            "type": "app",
+            "description": "Admin dashboard (Angular)"
+          },
+          {
+            "name": "customer",
+            "path": "./apps/customer",
+            "type": "app",
+            "description": "Customer portal (React)"
+          },
+          {
+            "name": "api",
+            "path": "./apps/api",
+            "type": "service",
+            "description": "NestJS API"
+          },
+          {
+            "name": "ui-common",
+            "path": "./libs/ui-common",
+            "type": "package",
+            "description": "Shared UI library"
+          },
+          {
+            "name": "data-access",
+            "path": "./libs/data-access",
+            "type": "package",
+            "description": "Data access layer"
+          }
+        ],
+        "issueTracking": "github"
+      }
+    },
+    {
+      "name": "Minimal Repo (no docs directory)",
+      "config": {
+        "projectName": "Simple CLI Tool",
+        "docsDir": "./",
+        "repos": ["company/cli-tool"],
+        "modules": [
+          {
+            "name": "cli",
+            "path": "./src",
+            "type": "app"
+          }
+        ],
+        "issueTracking": "github"
+      }
+    }
+  ]
+}

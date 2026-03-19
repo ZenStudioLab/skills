@@ -1,0 +1,124 @@
+name: Task
+description: Standard task for implementation
+title: "[Task] "
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for implementation tasks.
+        
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One-sentence summary of this task
+      placeholder: "Implement SSO authentication"
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - area:ui
+        - area:engine
+        - area:seo
+        - area:infra
+        - area:dx
+        - area:docs
+        - area:security
+        - area:performance
+    validations:
+      required: false
+      
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      description: Which module does this affect? (e.g., module:web, module:api)
+      placeholder: "module:api"
+    validations:
+      required: false
+      
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: |
+        Link to relevant documentation and context.
+        
+        Format:
+        - Architecture: ./docs/architecture.md#section
+        - ADRs: ./docs/ADRs/NNNN-decision.md
+        - Related Issues: #123, #124
+      placeholder: |
+        - Architecture: ./docs/architecture.md#auth
+        - ADRs: ./docs/ADRs/0015-sso.md
+        - Related: #42
+    validations:
+      required: true
+      
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: |
+        Files and modules affected. What's in scope and out of scope?
+        
+      placeholder: |
+        **In Scope:**
+        - src/auth/sso.ts
+        - tests/auth/sso.test.ts
+        
+        **Out of Scope:**
+        - SAML integration (separate task)
+    validations:
+      required: true
+      
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should this accomplish?
+      placeholder: "Enable users to authenticate via SSO providers (Google, GitHub)"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Any technical constraints or requirements?
+      placeholder: |
+        - Must support OAuth 2.0
+        - Must not break existing email/password auth
+        - Session handling unchanged
+    validations:
+      required: false
+      
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How do we know this is done?
+      placeholder: |
+        - [ ] SSO login button appears on login page
+        - [ ] Successful OAuth flow redirects to dashboard
+        - [ ] Failed auth shows error message
+        - [ ] Tests pass
+    validations:
+      required: true

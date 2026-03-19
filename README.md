@@ -12,6 +12,7 @@ Run into a problem or have a question? Open an issue — we're happy to help.
 Skills are markdown files that give AI agents specialized knowledge and workflows for specific tasks. When you add these to your project, your agent can recognize when you're working on a task and apply the right frameworks and best practices.
 
 ## 🚀 Active Skills
+- **GitHub OS**: Set up GitHub as your project's Operating System - execution layer integrated with docs as knowledge layer, optimized for LLM workflows.
 - **Playwright Extension Testing**: Gold-standard E2E for MV3/WXT extensions.
 - **Lesson Decision Records**: Systematic recording of AI mistakes and learnings using ADR-inspired format.
 - **Context Hub Get API Docs**: Fetch current API documentation for third-party libraries and SDKs via chub CLI.
@@ -55,6 +56,10 @@ Then reference skills from `.agents/zenstudiolab-skills/skills/`.
 Integrated via [skills.sh](https://skills.sh).
 
 Once installed, just ask your agent to help with tasks:
+
+"Set up GitHub OS for this repository"
+→ Uses GitHub OS skill
+
 "Help me set up Playwright E2E testing for my MV3 extension"
 → Uses Playwright Extension Testing skill
 

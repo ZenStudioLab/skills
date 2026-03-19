@@ -1,0 +1,71 @@
+name: Feature Request
+description: Propose a new feature
+title: "[Feature] "
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What feature do you want?
+      placeholder: "Add OAuth support for Microsoft accounts"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this needed?
+      placeholder: |
+        - Enterprise customers request Microsoft SSO
+        - Completes SSO provider coverage
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this work?
+      placeholder: "Add Microsoft as OAuth provider using same pattern as Google/GitHub"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What defines done?
+      placeholder: |
+        - [ ] Microsoft SSO button on login page
+        - [ ] Successful auth flow
+        - [ ] Tests pass
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+        
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      description: Which module will this affect?
+      placeholder: "module:api"
+      
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Links to relevant documentation
+      placeholder: |
+        - Architecture: ./docs/architecture.md#auth
+        - Related: #40, #41
