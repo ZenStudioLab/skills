@@ -1,0 +1,58 @@
+{
+  "skill_name": "repo-to-notion-architect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a TypeScript project at ~/projects/my-saas-app. It has a src/ directory with Express backend code, a docs/ folder containing architecture.md, an adr/ subdirectory with 4 ADR files, a plans/ subdirectory with 2 plan files, a README.md, package.json with version 1.2.0, and a vercel.json at root. There is no monorepo setup, no workspaces, no submodules. Design a Notion workspace architecture for this repo.",
+      "expected_output": "Structured 5-section Notion architecture output. Repo classified as Normal repo. Root codebase classified as Project. docs/ classified as Docs-source. ADRs mapped to ADRs database with repo-canonical note (not copied into Notion bodies). Max 7 databases recommended. src/ NOT classified as Module.",
+      "files": [],
+      "assertions": [
+        "Repo type is classified as Normal repo (not Monorepo)",
+        "src/ is NOT classified as a Module",
+        "docs/ is classified as Docs-source",
+        "ADR files are mapped to ADRs database with a note that content stays repo-canonical",
+        "vercel.json is identified as a deployed URL signal",
+        "Output contains all 5 required sections: Repo Analysis Summary, Classification Model, Canonical-Source Strategy, Proposed Notion Architecture, Mapping Table",
+        "Canonical-Source Strategy shows code and configs staying in REPO",
+        "Recommended databases total 7 or fewer",
+        "Mapping table includes entries for docs/architecture.md and docs/adr/*"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have a monorepo at ~/projects/platform. Root has: turbo.json, pnpm-workspace.yaml, package.json (private: true). Under apps/ I have: web/ (Next.js app with pages/, next.config.js, own package.json with homepage set to https://app.example.com), admin/ (another Next.js app, no public URL yet), api/ (Express server with src/server.ts and fly.toml). Under packages/ I have: ui/ (React component library, package.json with private: false and version 1.0.0), config/ (shared tsconfig and eslint configs), utils/ (internal helpers, imported by all apps). Root has docs/ with architecture.md and adr/ subfolder. No git submodules. Please include an implementation plan.",
+      "expected_output": "Monorepo topology with individual component classifications. apps/web and apps/admin as Surface. apps/api as Service. packages/ui as Library. packages/utils as Shared. packages/config as Tooling or Shared. Modules Registry DB included. Section 6 Implementation Plan present with phased rollout starting from minimal viable setup.",
+      "files": [],
+      "assertions": [
+        "Repo type is classified as Monorepo",
+        "apps/web is classified as Surface",
+        "apps/admin is classified as Surface",
+        "apps/api is classified as Service",
+        "packages/ui is classified as Library",
+        "packages/utils is classified as Shared",
+        "Output includes a Modules Registry database",
+        "Section 6 Implementation Plan is present",
+        "Implementation Plan has a Phase 1 that delivers value before the full migration is complete",
+        "Mapping table has entries for all 6 workspace members (web, admin, api, ui, config, utils)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have a repo at ~/projects/product-suite. It has a .gitmodules file with two entries: one pointing to git@github.com:myorg/design-system.git at path vendor/design-system, and one pointing to git@github.com:myorg/infra-scripts.git at path infra/scripts. The design-system submodule IS cloned and has a package.json with private: false and version 2.1.0, plus a src/ with React components. The infra-scripts submodule is NOT cloned locally. At root: src/ with TypeScript app code, docs/ with standard docs structure, package.json (single app, private: true), and a supabase/ folder. Please also propose the metadata file.",
+      "expected_output": "Repo classified as Has submodules (not Monorepo). vendor/design-system as Library. infra/scripts as Infra or Tooling, flagged as inferred. supabase/ as Infra. Root repo as Project. Submodules listed separately from workspace packages. Section 7 Metadata File Proposal present using .project-tools.json.",
+      "files": [],
+      "assertions": [
+        "Repo type is classified as Has submodules (not Monorepo)",
+        "vendor/design-system is classified as Library",
+        "infra/scripts is classified as Infra or Tooling and flagged as inferred or unverified",
+        "supabase/ is classified as Infra (NOT Service)",
+        "Root repo src/ is classified as Project (not Module)",
+        "Submodules are listed separately from workspace packages in the output",
+        "Section 7 Metadata File Proposal is present",
+        "Metadata file recommendation uses the filename .project-tools.json",
+        "Metadata file example JSON includes a modules array with submodule entries",
+        "design-system code is shown as repo-canonical in the Canonical-Source Strategy"
+      ]
+    }
+  ]
+}
