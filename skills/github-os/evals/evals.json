@@ -1,0 +1,50 @@
+{
+  "skill_name": "github-os",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just created a new TypeScript monorepo at github.com/acme-corp/platform. It has apps/web (Next.js), apps/admin (React), services/api (Fastify), and packages/ui and packages/utils. The repo has a docs/ folder with architecture.md and an ADRs/ directory. I want to set up GitHub as my project OS — labels, issue templates, PR template, a GitHub Project, all of it. Please analyze the repo structure and set up the full GitHub OS system for me.",
+      "expected_output": "Complete GitHub OS analysis and design: repository analysis (monorepo with 5 modules), label system (type, priority, area, module labels for web/admin/api/ui/utils), issue templates (task/bug/feature YAML), PR template, GitHub Project design, .github-os.json config, and a presentation for approval before execution.",
+      "files": [],
+      "assertions": [
+        "Identifies the repo as a monorepo with 5 modules (web, admin, api, ui, utils)",
+        "Proposes module labels: module:web, module:admin, module:api, module:ui, module:utils",
+        "Proposes all four core type labels: type:feature, type:bug, type:chore, type:research",
+        "Proposes all four priority labels: priority:p0, priority:p1, priority:p2, priority:p3",
+        "Includes or proposes issue templates (task, bug, feature) as YAML forms",
+        "Includes or proposes a PR template with Closes #, What Changed, Context, Testing sections",
+        "Proposes creating a .github-os.json configuration file with module definitions",
+        "Presents the design for approval BEFORE executing (follows Step 3: Present Design)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Hey, I have a single-repo project at github.com/zenji-dev/zen-piano (it's a virtual piano app). No docs folder yet, just a src/ directory and a README. I want to migrate from my current messy GitHub labels to the GitHub OS approach. Can you do a repo analysis and show me what you'd set up?",
+      "expected_output": "Repository analysis for a simple single repo with minimal docs. Skill detects: single repo, minimal docs (README only), proposes appropriate label set (no module labels needed or just one like module:zen-piano), proposes docs structure creation, and shows the analysis output format correctly.",
+      "files": [],
+      "assertions": [
+        "Identifies the repo as a single repository (not monorepo)",
+        "Correctly assesses documentation as 'minimal' (README only, no docs/ directory)",
+        "Still proposes core type and priority labels even for a simple single repo",
+        "Suggests creating or setting up a docs/ directory as part of the recommendation",
+        "Produces a repo analysis report in the structured format defined by the skill",
+        "Does NOT generate unnecessary module labels for a simple single-repo project"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to write a GitHub issue for adding Stripe payment integration to our web app. Our repo is github.com/myco/saas-app. We already have the GitHub OS system set up (labels, templates, etc.). The feature will touch src/payments/, src/api/stripe.ts, and the frontend checkout flow. It needs to integrate with our existing subscription system and not break existing PayPal flow. Please write an LLM-ready issue following our GitHub OS standards.",
+      "expected_output": "A complete, LLM-ready GitHub issue body with: clear title, type:feature label recommendation, Context section with documentation links (docs/architecture.md#payments), Scope section (in/out of scope), Goal statement, Constraints, Acceptance Criteria checkboxes, and status:llm-ready label evaluation.",
+      "files": [],
+      "assertions": [
+        "Issue has a clear, specific title under 72 characters (no vague title like 'Add payments')",
+        "Issue body contains a Context section with documentation and code links",
+        "Issue body contains an explicit Scope section with In Scope and Out of Scope items",
+        "Issue body contains Acceptance Criteria as a checklist ([ ] items)",
+        "Out of scope explicitly mentions PayPal (to not break existing flow)",
+        "Issue identifies specific files/paths to be affected (src/payments/, src/api/stripe.ts)",
+        "Evaluates or assigns status:llm-ready label based on the LLM-ready criteria checklist"
+      ]
+    }
+  ]
+}
