@@ -1,0 +1,47 @@
+{
+  "skill_name": "monorepo-worktree-safety",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm working on a pnpm monorepo with apps/web (Next.js), apps/admin (React), packages/ui, and packages/utils. My team uses git worktrees for parallel feature development. I've just created a worktree at .worktrees/feature-payment inside the monorepo root. Now when I cd into .worktrees/feature-payment and run `pnpm exec vitest run`, I get 'Cannot find module @org/ui'. How do I fix this safely?",
+      "expected_output": "Agent runs verification script, identifies the workspace package resolution failure as the root cause (worktree lacks workspace context), recommends switching to primary workspace execution context, shows the correct command to run vitest from root targeting the worktree path, and checks/adds .worktrees/ to .gitignore and .worktrees/** to vitest exclusions. Produces a worktree safety report.",
+      "files": [],
+      "assertions": [
+        "Runs or references the verify-monorepo-worktree.sh verification script",
+        "Identifies the root cause as workspace package resolution failure (cannot resolve @org/* packages from inside the worktree)",
+        "Recommends running tests from the primary workspace context rather than from inside the worktree",
+        "Provides a concrete command to run vitest from the primary workspace root (e.g., pnpm exec vitest run or similar)",
+        "Adds or suggests adding .worktrees/ to .gitignore",
+        "Adds or suggests adding .worktrees/** exclusion to vitest config",
+        "Produces a worktree safety report with execution context, risk level, and final verification command"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm debugging a flaky test in a submodule. Our monorepo structure is: root repo -> submodule at platform/ which itself has packages/core and packages/sdk. I created a worktree inside the submodule: platform/.worktrees/fix-flaky. When I run tests from inside the worktree I get some tests passing and some that seem to be from a different branch. Also vitest seems to be finding test files I didn't touch. What's going wrong and how do I fix test discovery?",
+      "expected_output": "Agent diagnoses two issues: (1) test discovery is crossing worktree boundaries because .worktrees/** is not excluded from Vitest config, (2) nested submodule workspace resolution risk. Provides the vitest exclusion fix, explains why tests from other branches appear, checks gitignore, and warns about nested submodule workspace conflict risks.",
+      "files": [],
+      "assertions": [
+        "Diagnoses that Vitest is discovering test files inside the .worktrees/ directory (crawling nested checkout)",
+        "Provides the Vitest config fix to add .worktrees/** to the exclude array",
+        "Mentions the nested submodule workspace root ambiguity as an additional risk factor",
+        "Checks or suggests checking that .worktrees/ is in .gitignore",
+        "Explains why tests from a different branch appear (Vitest walking into the other branch's checkout)",
+        "Produces a report or summary of what was found and fixed"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have to run e2e tests from inside a worktree — there's a script in the worktree that uses relative paths and can't be relocated. The worktree is at .worktrees/release-3.2 inside the main repo. There's no node_modules in the worktree. My package manager is npm with workspaces (not pnpm). I know the symlink approach might be risky but I want to try it carefully. Walk me through the symlink fallback and runtime parity check.",
+      "expected_output": "Agent walks through the node_modules symlink approach: creates symlink from worktree to primary workspace node_modules, runs the runtime parity check (checking for duplicate React instances), explains what a collision looks like and when to abort, and clarifies that if collision is detected they must switch to primary workspace context.",
+      "files": [],
+      "assertions": [
+        "Provides the ln -s command to symlink the worktree node_modules to the primary workspace node_modules",
+        "Runs or provides the runtime parity check to detect duplicate module instances",
+        "Explains what a DUPLICATE result means and why it indicates a collision",
+        "States the fallback: if collision is detected, switch to primary workspace context instead",
+        "Produces a report documenting the symlink approach, toolchain risk, and whether parity was verified"
+      ]
+    }
+  ]
+}

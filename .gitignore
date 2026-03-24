@@ -1,2 +1,4 @@
 dummy-extension-project/
 *-workspace
+.worktrees/
+__pycache__/
