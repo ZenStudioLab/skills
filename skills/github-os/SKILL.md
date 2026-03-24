@@ -1334,17 +1334,18 @@ Create at repository root: `.github-os.json`
 
 ### Primary Tool
 
-GitHub MCP Server (`@modelcontextprotocol/server-github`) is the **primary** tool for all GitHub operations.
+> **Global tool preference**: **`gh` CLI is preferred** over GitHub MCP for all GitHub operations in this workflow. `gh` CLI is always available, supports all required operations (including `project item-add` which MCP does not), and produces predictable output. Use MCP only as a fallback when `gh` CLI is unavailable.
 
 ### Installation Check
 
 ```markdown
-Before proceeding, verify GitHub MCP is available:
+Before proceeding, verify tools are available (in order of preference):
 
-**Check**: Can you see GitHub MCP tools?
+1. gh CLI: Run `gh auth status` — if authenticated, use gh CLI for all operations
+2. GitHub MCP: Check if MCP tools are visible — use as fallback if gh CLI unavailable
+3. Neither: Output manual instructions
 
-If YES: Proceed with MCP operations
-If NO: See `assets/github-mcp-setup.md` for installation
+See `assets/github-mcp-setup.md` for MCP installation if needed.
 ```
 
 ### MCP Operations
