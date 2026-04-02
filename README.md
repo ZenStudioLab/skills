@@ -14,7 +14,11 @@ Skills are markdown files that give AI agents specialized knowledge and workflow
 ## 🚀 Active Skills
 - **GitHub OS**: Set up GitHub as your project's Operating System - execution layer integrated with docs as knowledge layer, optimized for LLM workflows.
 - **Playwright Extension Testing**: Gold-standard E2E for MV3/WXT extensions.
-- **Peer LLMs**: Inter-LLM collaboration — includes Codex CLI and OpenCode CLI delegation, plan-review, and plan-execute workflows with provider override support.
+- **Peer LLMs**: Inter-LLM collaboration workflows — enables delegation, review, and execution across LLM providers.
+  - **Codex CLI**: Delegates coding tasks to Codex CLI for batch refactoring, code generation, multi-file changes.
+  - **OpenCode CLI**: Delegates coding tasks to OpenCode CLI with streaming JSON output and session reuse.
+  - **Plan Review**: Reviews technical plans via a coding agent with iterative refinement.
+  - **Plan Execute**: Executes finalized plans by delegating to a coding agent with Claude/codex orchestrator.
 - **Lesson Decision Records**: Systematic recording of AI mistakes and learnings using ADR-inspired format.
 - **Context Hub Get API Docs**: Fetch current API documentation for third-party libraries and SDKs via chub CLI.
 
@@ -104,32 +108,32 @@ Inter-LLM collaboration workflows — enabling AI agents to delegate, review, an
 %%{init: {'theme': 'base', 'themeVariables': { 'clusterBkg': 'transparent', 'background': 'transparent', 'primaryColor': '#FFF7E6', 'primaryTextColor': '#5A3A00', 'primaryBorderColor': '#F59E0B', 'lineColor': '#6366F1', 'secondaryColor': '#E8F5FF', 'tertiaryColor': '#F3E8FF'}}}%%
 flowchart TB
   classDef user fill:#E8F5FF,stroke:#1B6EF3,stroke-width:2px,color:#0B2A5B,stroke-dasharray: 0;
-  classDef claude fill:#FFF7E6,stroke:#F59E0B,stroke-width:2px,color:#5A3A00,stroke-dasharray: 0;
+  classDef orchestrator fill:#FFF7E6,stroke:#F59E0B,stroke-width:2px,color:#5A3A00,stroke-dasharray: 0;
   classDef agent fill:#F3E8FF,stroke:#7C3AED,stroke-width:2px,color:#2E1065,stroke-dasharray: 0;
   classDef decision fill:#FFFFFF,stroke:#6366F1,stroke-width:2px,color:#111827,stroke-dasharray: 5 5;
 
   subgraph P1["Phase 1: Plan Review"]
     U1["User: Submit Plan"]:::user
-    C1["Claude: Delegate to Agent for Critical Review"]:::claude
+    O1["Orchestrator: Delegate to Agent for Critical Review"]:::orchestrator
     X1["Agent: Output Review (10+ issues)"]:::agent
-    C2["Claude: Evaluate & Refine Plan"]:::claude
+    O2["Orchestrator: Evaluate & Refine Plan"]:::orchestrator
     D1{"Status?"}:::decision
-    U1 --> C1 --> X1 --> C2 --> D1
-    D1 -- "NEEDS_REVISION" --> C1
+    U1 --> O1 --> X1 --> O2 --> D1
+    D1 -- "NEEDS_REVISION" --> O1
   end
 
   subgraph P2["Phase 2: Plan Execute"]
-    C3["Claude: Dispatch batch to Agent"]:::claude
+    O3["Orchestrator: Dispatch batch to Agent"]:::orchestrator
     X2["Agent: Implement code changes"]:::agent
-    C4["Claude: Code Review"]:::claude
+    O4["Orchestrator: Code Review"]:::orchestrator
     D2{"Verdict?"}:::decision
     Done([Complete]):::decision
-    C3 --> X2 --> C4 --> D2
+    O3 --> X2 --> O4 --> D2
     D2 -- "NEEDS_FIX" --> X2
     D2 -- "APPROVED" --> Done
   end
 
-  D1 -- "APPROVED" --> C3
+  D1 -- "APPROVED" --> O3
 ```
 
 ### Core Concepts
@@ -138,7 +142,7 @@ flowchart TB
 |---------|-------------|
 | **Adversarial** | Coding agent acts as a "nitpicker" — its job is to find flaws |
 | **Iterative** | Multiple rounds of back-and-forth until quality gates pass |
-| **Role Separation** | User defines what, Claude orchestrates how, coding agent executes |
+| **Role Separation** | User defines what, orchestrator (Claude/any LLM) coordinates how, coding agent executes |
 | **Feedback Loops** | Review → Fix → Re-review cycles |
 | **Provider Override** | Use `opencode` prefix to switch from default Codex to OpenCode |
 
