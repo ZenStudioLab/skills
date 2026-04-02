@@ -22,7 +22,6 @@ Options:
   -w, --workspace <path>       Workspace directory (default: current directory)
       --model <name>           Model override (format: provider/model)
       --agent <name>          Agent to use
-      --read-only             Read-only mode (no file changes)
   -o, --output <path>         Output file path
   -h, --help                  Show this help
 
@@ -90,7 +89,6 @@ workspace="${PWD}"
 task_text=""
 model=""
 agent_name=""
-read_only=false
 output_path=""
 session_id=""
 file_refs=()
@@ -102,7 +100,6 @@ while [[ $# -gt 0 ]]; do
     -f|--file|--focus) append_file_refs "${2:-}"; shift 2 ;;
     --model)          model="${2:-}"; shift 2 ;;
     --agent)          agent_name="${2:-}"; shift 2 ;;
-    --read-only)      read_only=true; shift ;;
     --session)        session_id="${2:-}"; shift 2 ;;
     -o|--output)      output_path="${2:-}"; shift 2 ;;
     -h|--help)        usage; exit 0 ;;
@@ -112,6 +109,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 require_cmd opencode
+require_cmd jq
 
 # --- Validate inputs ---
 
