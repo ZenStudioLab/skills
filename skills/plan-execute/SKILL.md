@@ -1,29 +1,32 @@
 ---
 name: plan-execute
-description: Use when the user says "/plan-execute", "plan execute", "implement plan", or "execute plan" and provides a finalized plan file path to carry out. Claude orchestrates, Codex writes code, Claude reviews, and Codex fixes issues until the quality bar is met.
+description: Use when the user says "/plan-execute", "plan execute", "implement plan", or "execute plan" and provides a finalized plan file path to carry out. Claude orchestrates, the coding agent writes code, Claude reviews, and the coding agent fixes issues until the quality bar is met. Specify a coding agent provider inline (e.g., "opencode") to override the default "codex" agent.
 ---
 
 # Plan Execute Skill
 
 ## Purpose
 
-When the user runs `/plan-execute {plan-file-path}`, start the "orchestrated plan execution" workflow:
-1. I (Claude Code) ask Codex to implement the code according to the plan.
-2. After Codex finishes, I review the generated code.
-3. I write the review into the `reviews/` directory, then ask Codex to inspect and fix the issues.
+When the user runs `/plan-execute [{provider}] {plan-file-path}`, start the "orchestrated plan execution" workflow:
+1. I (Claude Code) ask the coding agent to implement the code according to the plan.
+2. After the agent finishes, I review the generated code.
+3. I write the review into the `reviews/` directory, then ask the agent to inspect and fix the issues.
 4. Repeat until the code quality bar is met.
 
-**Core principle: I do not write or edit code myself. I only do two things: review code and orchestrate Codex. All code changes, including implementation and fixes, are performed by Codex.**
+**Provider**: defaults to `codex`, override by specifying a provider inline (e.g., `opencode`) before the plan path.
+
+**Core principle: I do not write or edit code myself. I only do two things: review code and orchestrate the coding agent. All code changes, including implementation and fixes, are performed by the agent.**
 
 ## Usage
 
 ```
 /plan-execute plans/my-feature-plan.md
+/plan-execute opencode plans/my-feature-plan.md
 ```
 
 ## Session Reuse
 
-After each Codex invocation, extract `session_id=xxx` from the script output and save it as the session ID for the current task. In later Codex calls for the same task, pass `--session <id>` to reuse context so Codex remembers prior implementation and fix history instead of rereading the entire codebase every time.
+After each coding agent invocation, extract `session_id=xxx` from the script output and save it as the session ID for the current task. In later calls for the same task, pass `--session <id>` to reuse context so the agent remembers prior implementation and fix history instead of rereading the entire codebase every time.
 
 ## My Workflow (Claude Code)
 
@@ -38,9 +41,9 @@ Read the specified plan file and understand:
 If the plan already contains a checklist (`- [ ]` / `- [x]`), use those items as execution units.
 If it does not define clear steps, split the work into reasonable batches, with no more than 5 file changes per batch.
 
-### Step 2: Ask Codex to Implement the Code
+### Step 2: Ask the Agent to Implement the Code
 
-Use the `/codex` skill and give Codex the following instruction:
+Use the `/{provider}` skill (default: `/codex`) and give the agent the following instruction:
 
 ```
 Implement the code according to the plan in {plan-file-path}.
@@ -57,9 +60,9 @@ Requirements:
 After implementation, list all changed files and provide a summary of each change.
 ```
 
-### Step 3: Review Codex Output (My Core Responsibility)
+### Step 3: Review Agent Output (My Core Responsibility)
 
-After Codex finishes, I perform a code review. **Important: I only read code and write reviews. I never directly modify source files.**
+After the agent finishes, I perform a code review. **Important: I only read code and write reviews. I never directly modify source files.**
 
 1. **Read every changed file** and review them one by one.
 2. **Compare against the plan** to verify the implementation matches the intended design.
@@ -71,7 +74,7 @@ After Codex finishes, I perform a code review. **Important: I only read code and
    - Whether it follows existing project patterns
 4. **Run `pnpm build`** to confirm the compilation status.
 
-### Step 4: Write the Review and Hand Fixes Back to Codex
+### Step 4: Write the Review and Hand Fixes Back to the Agent
 
 Append the review to `reviews/{topic}-review.md` (shared with `plan-review`):
 
@@ -95,7 +98,7 @@ Append the review to `reviews/{topic}-review.md` (shared with `plan-review`):
 ### Verdict: NEEDS_FIX / APPROVED
 ```
 
-If `Verdict: NEEDS_FIX`, call `/codex` and have Codex fix the issues instead of editing them myself:
+If `Verdict: NEEDS_FIX`, call `/{provider}` (default: `/codex`) and have the agent fix the issues instead of editing them myself:
 
 ```
 Read the latest Code Review round in {review-file-path}.
@@ -108,15 +111,15 @@ If `Verdict: APPROVED`, skip to Step 6.
 
 ### Step 5: Verify Fixes and Iterate
 
-After Codex applies fixes, I review again, still without editing code directly:
+After the agent applies fixes, I review again, still without editing code directly:
 - Check whether each issue was truly fixed
 - Check whether the fixes introduced new problems
-- If issues remain, write a new review round and hand it back to Codex for another fix pass (repeat Step 4)
+- If issues remain, write a new review round and hand it back to the agent for another fix pass (repeat Step 4)
 - If everything passes, mark the review as `Verdict: APPROVED`
 
 ### Step 6: Update Plan Progress
 
-After each batch is completed, ask Codex to update the checklist in the plan file (`- [ ]` -> `- [x]`).
+After each batch is completed, ask the agent to update the checklist in the plan file (`- [ ]` -> `- [x]`).
 If unfinished steps remain, go back to Step 2 for the next batch.
 Once all work is complete, move to the wrap-up.
 

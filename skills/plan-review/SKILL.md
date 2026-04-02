@@ -1,28 +1,31 @@
 ---
 name: plan-review
-description: Use when the user says "/plan-review", "plan review", or "PRD review" and provides a plan file path that needs critical review and iterative refinement with Codex.
+description: Use when the user says "/plan-review", "plan review", or "PRD review" and provides a plan file path that needs critical review and iterative refinement. Specify a coding agent provider inline (e.g., "opencode") to override the default "codex" agent.
 ---
 
 # Plan Review Skill
 
 ## Purpose
 
-When the user runs `/plan-review {plan-file-path}`, start the "adversarial plan iteration" workflow:
-1. I (Claude Code) ask Codex to perform a critical review of the specified plan.
-2. I read the review produced by Codex and evaluate whether its suggestions are sound.
+When the user runs `/plan-review [{provider}] {plan-file-path}`, start the "adversarial plan iteration" workflow:
+1. I (Claude Code) ask the coding agent to perform a critical review of the specified plan.
+2. I read the review produced by the agent and evaluate whether its suggestions are sound.
 3. I revise the plan based on valid suggestions and write changes back to the original plan file.
-4. If the review status is `NEEDS_REVISION`, I automatically ask Codex to review again.
+4. If the review status is `NEEDS_REVISION`, I automatically ask the agent to review again.
 5. Repeat until consensus is reached as `MOSTLY_GOOD` or `APPROVED`.
+
+**Provider**: defaults to `codex`, override by specifying a provider inline (e.g., `opencode`) before the plan path.
 
 ## Usage
 
 ```
 /plan-review plans/my-feature-plan.md
+/plan-review opencode plans/my-feature-plan.md
 ```
 
 ## Session Reuse
 
-After each Codex invocation, extract `session_id=xxx` from the script output and save it as the session ID for the current task. In later Codex calls for the same task, pass `--session <id>` to reuse context so Codex remembers prior review history and can stay consistent across multiple rounds.
+After each coding agent invocation, extract `session_id=xxx` from the script output and save it as the session ID for the current task. In later calls for the same task, pass `--session <id>` to reuse context so the agent remembers prior review history and can stay consistent across multiple rounds.
 
 ## My Workflow (Claude Code)
 
@@ -32,11 +35,11 @@ Derive the review file path from the plan file name:
 - `plans/auth-refactor.md` → `reviews/auth-refactor-review.md`
 - Rule: `reviews/{plan-file-name-without-.md}-review.md`
 
-If the review file already exists, this is not the first round, so Codex must track the resolution status of issues from the previous round.
+If the review file already exists, this is not the first round, so the reviewer must track the resolution status of issues from the previous round.
 
-### Step 2: Ask Codex to Review the Plan
+### Step 2: Ask the Reviewer to Review the Plan
 
-Use the `/codex` skill and give Codex the following instruction:
+Use the `/{provider}` skill (default: `/codex`) and give the reviewer the following instruction:
 
 ```
 Read the contents of {plan-file-path} and review it critically as an independent third-party reviewer.
@@ -94,25 +97,25 @@ When the review file is created for the first time, add this header at the top:
 # Plan Review: {plan title}
 
 **Plan File**: {plan-file-path}
-**Reviewer**: Codex
+**Reviewer**: {provider} (default: Codex)
 ```
 
 ### Step 3: Read the Review and Revise the Plan
 
-After Codex finishes, I read the latest review round in the review file:
+After the agent finishes, I read the latest review round in the review file:
 
-1. **Evaluate each issue** raised by Codex one by one.
+1. **Evaluate each issue** raised by the agent one by one.
 2. **Adopt valid suggestions** and revise the plan file.
 3. If rejecting an unreasonable suggestion, optionally note the reason briefly in the plan.
 4. **Update the original plan file directly** instead of creating a new file.
 
 ### Step 4: Decide Whether to Continue Iterating
 
-Use the `Consensus Status` provided by Codex:
+Use the `Consensus Status` provided by the agent:
 
 | Status | My Action |
 |--------|---------|
-| `NEEDS_REVISION` | Revise the plan, then automatically ask Codex to review again and return to Step 2 |
+| `NEEDS_REVISION` | Revise the plan, then automatically ask the agent to review again and return to Step 2 |
 | `MOSTLY_GOOD` | Revise the plan, then tell the user the plan is mostly mature and ask whether another review round is needed |
 | `APPROVED` | Tell the user the plan has passed review and is ready for implementation |
 
