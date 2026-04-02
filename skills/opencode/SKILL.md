@@ -18,10 +18,13 @@ description: Delegate coding tasks to OpenCode CLI for execution, or discuss imp
 ~/.claude/skills/opencode/scripts/ask_opencode.sh "Your request"
 ~/.claude/skills/opencode/scripts/ask_opencode.sh "Refactor" --file src/components/UserList.tsx --file src/components/UserDetail.tsx
 ~/.claude/skills/opencode/scripts/ask_opencode.sh "Continue task" --session <session_id>
+~/.claude/skills/opencode/scripts/ask_opencode.sh "Complex task" --watch
+~/.claude/skills/opencode/scripts/ask_opencode.sh --status <session_id>
 
 Output Format:
 session_id=<thread_id>
 output_path=<path to markdown file>
+status_path=<path to status file>  # while running
 
 ## Decision Policy (When to Call)
 
@@ -49,7 +52,38 @@ output_path=<path to markdown file>
 - `--session <id>` - Resume a previous session
 - `--model <name>` - Override model (format: provider/model)
 - `--agent <name>` - Use a specific agent
-- `--read-only` - Read-only mode (no file changes)
+- `-W, --watch` - Stream output to stdout while writing to files (for long tasks)
+- `--status <session_id>` - Check status of a running session
+
+## Status & Progress Tracking
+
+While a task is running, the script writes status files to `.runtime/` in the skill directory:
+
+**Status file** (`.runtime/<timestamp>.status`):
+```
+status=running|completed|failed
+session_id=<id>
+started_at=<timestamp>
+last_activity=<description>
+progress_path=<file>
+```
+
+**Progress file** (`.runtime/<timestamp>.progress` - JSONL):
+```jsonl
+{"ts":"2026-04-02T10:00:00Z","type":"shell","msg":"Shell: pnpm build → success"}
+{"ts":"2026-04-02T10:00:05Z","type":"file","msg":"File written: src/api.ts"}
+{"ts":"2026-04-02T10:00:10Z","type":"message","msg":"Running tests..."}
+```
+
+**Checking status:**
+```bash
+ask_opencode.sh --status <session_id>
+```
+
+**Watch mode** - streams activity to stderr as it happens:
+```bash
+ask_opencode.sh "Complex refactor" --watch
+```
 
 ## Workflow
 
@@ -69,3 +103,5 @@ output_path=<path to markdown file>
 | **Session** | `--session <id>` | `--session <id>` |
 | **File context** | `--file <path>` | `--file <path>` |
 | **PTY workaround** | Not needed | Required |
+| **Watch mode** | `--watch` streams to stdout | Not available |
+| **Status tracking** | `.runtime/*.status` + `*.progress` | Not available |
