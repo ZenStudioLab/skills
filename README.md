@@ -14,6 +14,7 @@ Skills are markdown files that give AI agents specialized knowledge and workflow
 ## 🚀 Active Skills
 - **GitHub OS**: Set up GitHub as your project's Operating System - execution layer integrated with docs as knowledge layer, optimized for LLM workflows.
 - **Playwright Extension Testing**: Gold-standard E2E for MV3/WXT extensions.
+- **Peer LLMs**: Inter-LLM collaboration workflows — delegate, review, and execute tasks across different LLM providers (Codex, etc.).
 - **Lesson Decision Records**: Systematic recording of AI mistakes and learnings using ADR-inspired format.
 - **Context Hub Get API Docs**: Fetch current API documentation for third-party libraries and SDKs via chub CLI.
 
@@ -62,6 +63,9 @@ Once installed, just ask your agent to help with tasks:
 
 "Help me set up Playwright E2E testing for my MV3 extension"
 → Uses Playwright Extension Testing skill
+
+"Delegate this refactoring to Codex CLI"
+→ Uses Peer LLMs skill (Codex integration)
 
 "Create a Lesson Decision Record for a recent bug"
 → Uses Lesson Decision Records skill
