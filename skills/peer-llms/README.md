@@ -1,7 +1,5 @@
 # Peer LLMs
 
-[中文](./README_zh.md) | English
-
 A collection of skills for inter-LLM collaboration workflows — enabling AI agents to delegate, review, and execute tasks across different LLM providers.
 
 ## Skills
