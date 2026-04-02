@@ -14,7 +14,7 @@ Skills are markdown files that give AI agents specialized knowledge and workflow
 ## 🚀 Active Skills
 - **GitHub OS**: Set up GitHub as your project's Operating System - execution layer integrated with docs as knowledge layer, optimized for LLM workflows.
 - **Playwright Extension Testing**: Gold-standard E2E for MV3/WXT extensions.
-- **Peer LLMs**: Inter-LLM collaboration — includes Codex CLI delegation, plan-review, and plan-execute workflows.
+- **Peer LLMs**: Inter-LLM collaboration — includes Codex CLI and OpenCode CLI delegation, plan-review, and plan-execute workflows with provider override support.
 - **Lesson Decision Records**: Systematic recording of AI mistakes and learnings using ADR-inspired format.
 - **Context Hub Get API Docs**: Fetch current API documentation for third-party libraries and SDKs via chub CLI.
 
@@ -68,10 +68,16 @@ Once installed, just ask your agent to help with tasks:
 → Uses Peer LLMs skill (Codex integration)
 
 "/plan-review ./plans/my-feature.md"
-→ Uses Peer LLMs skill (plan-review)
+→ Uses Peer LLMs skill (plan-review, defaults to codex)
 
 "/plan-execute ./plans/my-feature.md"
-→ Uses Peer LLMs skill (plan-execute)
+→ Uses Peer LLMs skill (plan-execute, defaults to codex)
+
+"/plan-review opencode ./plans/my-feature.md"
+→ Uses Peer LLMs skill (plan-review, overrides to opencode)
+
+"/plan-execute opencode ./plans/my-feature.md"
+→ Uses Peer LLMs skill (plan-execute, overrides to opencode)
 
 "Create a Lesson Decision Record for a recent bug"
 → Uses Lesson Decision Records skill
@@ -88,8 +94,9 @@ Inter-LLM collaboration workflows — enabling AI agents to delegate, review, an
 | Skill | Description | Trigger |
 |-------|-------------|---------|
 | **Codex CLI** | Delegates coding tasks to Codex CLI for execution. Great for batch refactoring, code generation, multi-file changes. | `ask_codex.sh "Your request"` |
-| **plan-review** | Reviews a technical plan via Codex and iteratively refines it. Uses adversarial review to improve plan quality before implementation. | `/plan-review <plan-file-path>` |
-| **plan-execute** | Executes a finalized plan by delegating coding to Codex. Claude orchestrates, Codex codes, Claude reviews — iterating until quality passes. | `/plan-execute <plan-file-path>` |
+| **OpenCode CLI** | Delegates coding tasks to OpenCode CLI for execution. Supports streaming JSON output with session reuse. | `ask_opencode.sh "Your request"` |
+| **plan-review** | Reviews a technical plan via a coding agent (default: Codex) and iteratively refines it. Use `opencode` prefix to override provider. | `/plan-review [opencode] <plan-file-path>` |
+| **plan-execute** | Executes a finalized plan by delegating coding to a coding agent (default: Codex). Claude orchestrates, agent codes, Claude reviews — iterating until quality passes. Use `opencode` prefix to override provider. | `/plan-execute [opencode] <plan-file-path>` |
 
 ### Workflow
 
@@ -98,13 +105,13 @@ Inter-LLM collaboration workflows — enabling AI agents to delegate, review, an
 flowchart TB
   classDef user fill:#E8F5FF,stroke:#1B6EF3,stroke-width:2px,color:#0B2A5B,stroke-dasharray: 0;
   classDef claude fill:#FFF7E6,stroke:#F59E0B,stroke-width:2px,color:#5A3A00,stroke-dasharray: 0;
-  classDef codex fill:#F3E8FF,stroke:#7C3AED,stroke-width:2px,color:#2E1065,stroke-dasharray: 0;
+  classDef agent fill:#F3E8FF,stroke:#7C3AED,stroke-width:2px,color:#2E1065,stroke-dasharray: 0;
   classDef decision fill:#FFFFFF,stroke:#6366F1,stroke-width:2px,color:#111827,stroke-dasharray: 5 5;
 
   subgraph P1["Phase 1: Plan Review"]
     U1["User: Submit Plan"]:::user
-    C1["Claude: Delegate to Codex for Critical Review"]:::claude
-    X1["Codex: Output Review (10+ issues)"]:::codex
+    C1["Claude: Delegate to Agent for Critical Review"]:::claude
+    X1["Agent: Output Review (10+ issues)"]:::agent
     C2["Claude: Evaluate & Refine Plan"]:::claude
     D1{"Status?"}:::decision
     U1 --> C1 --> X1 --> C2 --> D1
@@ -112,8 +119,8 @@ flowchart TB
   end
 
   subgraph P2["Phase 2: Plan Execute"]
-    C3["Claude: Dispatch batch to Codex"]:::claude
-    X2["Codex: Implement code changes"]:::codex
+    C3["Claude: Dispatch batch to Agent"]:::claude
+    X2["Agent: Implement code changes"]:::agent
     C4["Claude: Code Review"]:::claude
     D2{"Verdict?"}:::decision
     Done([Complete]):::decision
@@ -129,15 +136,16 @@ flowchart TB
 
 | Concept | Description |
 |---------|-------------|
-| **Adversarial** | Codex acts as a "nitpicker" — its job is to find flaws |
+| **Adversarial** | Coding agent acts as a "nitpicker" — its job is to find flaws |
 | **Iterative** | Multiple rounds of back-and-forth until quality gates pass |
-| **Role Separation** | User defines what, Claude orchestrates how, Codex executes |
+| **Role Separation** | User defines what, Claude orchestrates how, coding agent executes |
 | **Feedback Loops** | Review → Fix → Re-review cycles |
+| **Provider Override** | Use `opencode` prefix to switch from default Codex to OpenCode |
 
 ### Three Loops
 
 - **Loop A (Plan Refinement)**: Review finds issues → Refine plan → Re-review → APPROVED
-- **Loop B (Code Fixing)**: Code review finds bugs → Codex fixes → Re-review → APPROVED
+- **Loop B (Code Fixing)**: Code review finds bugs → Agent fixes → Re-review → APPROVED
 - **Loop C (Batch Processing)**: Complete current batch → Next batch → All done
 
 ## 🏗️ Structure
