@@ -1,4 +1,5 @@
 dummy-extension-project/
+claude-gpt-workflow
 *-workspace
 .worktrees/
 __pycache__/

@@ -42,7 +42,7 @@ Executes a finalized plan by delegating coding to Codex. Claude orchestrates, Co
 ### Option 1: npx skills add (Recommended)
 
 ```bash
-npx skills add longranger2/claude-gpt-workflow
+npx skills add ZenStudioLab/skills --skill peer-llms
 ```
 
 ### Option 2: Manual installation
