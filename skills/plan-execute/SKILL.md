@@ -17,6 +17,76 @@ When the user runs `/plan-execute [{provider}] {plan-file-path}`, start the "orc
 
 **Core principle: I do not write or edit code myself. I only do two things: review code and orchestrate the coding agent. All code changes, including implementation and fixes, are performed by the agent.**
 
+## Logging and Tracking
+
+All significant events during plan execution must be written to a structured runtime log to support debugging and historical review. Use the following log file path convention:
+- Log path: `.runtime/{timestamp}-{session-id}.log.md` (in the workspace directory, e.g. `{workspace}/.runtime/20260402-100000-ses_abc123.log.md`)
+- Each log entry is a timestamped markdown line prefixed with a level tag
+
+### Log Levels and Format
+
+```
+[TIME] {ISO8601} | {LEVEL} | {PHASE} | {message}
+```
+
+**LEVEL tags**: `INFO` `WARN` `ERROR` `DEBUG`
+**PHASE tags**: `INIT` `AGENT` `REVIEW` `FIX` `BUILD` `WRAP` `SESSION`
+
+### Events to Log
+
+#### Session Lifecycle
+- `INIT` — Plan file path, provider, session ID, workspace, target files
+- `SESSION` — Session reuse detected (session_id=xxx) or new session created
+- `WRAP` — Final summary: steps completed, review rounds, changed files, build status
+
+#### Agent Invocations
+- `AGENT` — Agent invoked: provider, session_id, number of files passed, prompt scope
+- `AGENT` — Agent started producing output
+- `AGENT` — Agent completed: duration, output path, status (success/fail/error)
+- `AGENT` — Agent failed: error summary, session_id if known
+
+#### Review Rounds
+- `REVIEW` — Review round N started: scope, file count reviewed
+- `REVIEW` — Review round N completed: verdict (NEEDS_FIX/APPROVED), issue count by severity
+- `REVIEW` — Issue identified: severity, file:line, title (one line per issue)
+
+#### Fix Passes
+- `FIX` — Fix pass started: session_id, issue count to fix
+- `FIX` — Fix pass completed: issues resolved, issues remaining, new issues introduced
+
+#### Build Events
+- `BUILD` — Build started: command, working directory
+- `BUILD` — Build completed: exit code, duration, errors (if any)
+- `BUILD` — Test run started: command, scope
+- `BUILD` — Test run completed: exit code, duration, failures
+
+#### File Changes
+- `DEBUG` — File changed: path, change type (create/modify/delete), line delta if available
+
+### Example Log Entry
+
+```
+[TIME] 2026-04-02T10:00:00Z | INFO  | INIT   | plan_execute started | provider=opencode | plan=plans/my-feature-plan.md | workspace=/path/to/project
+[TIME] 2026-04-02T10:00:01Z | INFO  | SESSION | new session created | session_id=ses_abc123
+[TIME] 2026-04-02T10:00:05Z | INFO  | AGENT  | agent invoked | provider=opencode | files=3 | scope="Batch 1: types.ts, convert.ts"
+[TIME] 2026-04-02T10:02:30Z | INFO  | AGENT  | agent completed | duration=145s | status=success | output=/path/to/project/.runtime/20260402-100005.md
+[TIME] 2026-04-02T10:02:35Z | INFO  | REVIEW | round 1 started | scope="quality-scorer.ts, types.ts" | files=2
+[TIME] 2026-04-02T10:03:10Z | WARN  | REVIEW | issue identified | severity=High | file=src/quality-scorer.ts:42 | title="inRangeRatio uses source notes instead of output notes"
+[TIME] 2026-04-02T10:03:15Z | INFO  | REVIEW | round 1 completed | verdict=NEEDS_FIX | issues=2 High, 1 Medium
+[TIME] 2026-04-02T10:03:20Z | INFO  | FIX    | fix pass started | session_id=ses_abc123 | issues=3
+[TIME] 2026-04-02T10:05:00Z | INFO  | FIX    | fix pass completed | resolved=3 | remaining=0 | new_issues=0
+[TIME] 2026-04-02T10:05:05Z | INFO  | BUILD  | build started | cmd=yarn build | cwd=/path/to/project
+[TIME] 2026-04-02T10:05:45Z | INFO  | BUILD  | build completed | exit=0 | duration=40s
+[TIME] 2026-04-02T10:05:50Z | INFO  | WRAP   | plan_execute completed | steps=5/5 | rounds=2 | changed_files=4 | build=PASS
+```
+
+### Logging Mechanics
+
+- Use a temp log buffer during execution, write the complete log to file at wrap-up (Step 7) so all events are captured even if the session is reused or restarted
+- In watch mode or long-running sessions, append to the log file incrementally at each phase transition
+- The log file name should be derived from the session_id (e.g. `20260402-100000-ses_abc123.log.md`)
+- Include the log file path in the final wrap-up report so the user can reference it
+
 ## Usage
 
 ```
@@ -26,7 +96,7 @@ When the user runs `/plan-execute [{provider}] {plan-file-path}`, start the "orc
 
 ## Session Reuse
 
-After each coding agent invocation, extract `session_id=xxx` from the script output and save it as the session ID for the current task. In later calls for the same task, pass `--session <id>` to reuse context so the agent remembers prior implementation and fix history instead of rereading the entire codebase every time.
+After each coding agent invocation, extract `session_id=xxx` from the script output and save it as the session ID for the current task. Also log it with `SESSION` tag. In later calls for the same task, pass `--session <id>` to reuse context so the agent remembers prior implementation and fix history instead of rereading the entire codebase every time.
 
 ## My Workflow (Claude Code)
 
@@ -132,6 +202,7 @@ Report the following to the user:
 - Final build status
 - List of changed files
 - Path to the review log file
+- Path to the execution log file
 
 ## Review Severity Levels
 
