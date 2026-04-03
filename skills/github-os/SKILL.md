@@ -10,6 +10,7 @@ A systematic approach to setting up GitHub as your project's Operating System - 
 ## When to Use This Skill
 
 ### Use When:
+
 - **New Project Setup**: Starting fresh and need a complete GitHub execution system
 - **Workflow Restructuring**: Current issue tracking is chaotic or unstructured
 - **LLM Optimization**: Want to optimize GitHub for LLM-driven development
@@ -20,6 +21,7 @@ A systematic approach to setting up GitHub as your project's Operating System - 
 - **Convention Establishment**: Need standardized labels, templates, workflows
 
 ### Do NOT Use When:
+
 - Project already has well-functioning GitHub system
 - Team uses external PM tools (Linear, Jira) as primary source
 - Quick one-off issue creation (use github-issues skill instead)
@@ -28,6 +30,7 @@ A systematic approach to setting up GitHub as your project's Operating System - 
 ## Prerequisites
 
 ### Required
+
 1. **GitHub MCP Server**: Primary tool for GitHub operations
    - See `assets/github-mcp-setup.md` for installation
    - Enables label creation, issue management, project setup
@@ -40,6 +43,7 @@ A systematic approach to setting up GitHub as your project's Operating System - 
    - Can be customized per project
 
 ### Optional
+
 - **GitHub CLI (`gh`)**: Fallback tool for operations
 - **Existing skills**: Works alongside github-issues skill
 
@@ -48,6 +52,7 @@ A systematic approach to setting up GitHub as your project's Operating System - 
 The GitHub OS system is built on three pillars:
 
 ### 1. GitHub = Execution OS
+
 - **Issues**: Tasks, features, bugs (execution units)
 - **Projects**: Coordination and visibility
 - **Labels**: Classification and routing
@@ -55,6 +60,7 @@ The GitHub OS system is built on three pillars:
 - **Milestones**: Release tracking
 
 ### 2. Docs = Knowledge OS
+
 - **`./docs`**: Canonical source of truth
 - **Architecture docs**: System design
 - **ADRs**: Decisions and context
@@ -62,6 +68,7 @@ The GitHub OS system is built on three pillars:
 - **Never duplicate**: Docs live in repo, not GitHub
 
 ### 3. LLM = Connector
+
 - **Context linking**: Issues link to relevant docs
 - **LLM-ready tasks**: Structured for AI consumption
 - **Clear scope**: Explicit boundaries and constraints
@@ -86,14 +93,17 @@ The GitHub OS system is built on three pillars:
 ### Detection Heuristics
 
 #### Repository Type
+
 Analyze repository structure to determine:
 
 **Single Repository**:
+
 - One primary codebase
 - May have multiple modules but unified project
 - Example: `src/`, `lib/`, `tests/`
 
 **Monorepo**:
+
 - Multiple independent apps/packages
 - Indicators:
   - `apps/`, `packages/`, `services/` directories
@@ -102,6 +112,7 @@ Analyze repository structure to determine:
 - Example: `apps/web`, `apps/api`, `packages/ui`
 
 **Multi-repo System**:
+
 - Multiple separate repositories
 - Indicators:
   - Git submodules (`.gitmodules`)
@@ -112,6 +123,7 @@ Analyze repository structure to determine:
 #### Module Detection
 
 **Top-level Folders**:
+
 ```
 apps/           → App modules
 packages/       → Shared packages
@@ -122,16 +134,19 @@ scripts/        → Script utilities (not project modules)
 ```
 
 **Submodules**:
+
 - Parse `.gitmodules`
 - Each submodule = potential module or separate project
 
 **Workspace Detection**:
+
 - Parse `package.json` workspaces
 - Parse `pnpm-workspace.yaml`
 - Parse `nx.json` projects
 - Parse `turbo.json` pipeline
 
 **Module Classification**:
+
 - **App**: User-facing application (`apps/web`, `apps/mobile`)
 - **Service**: Backend service (`services/api`, `services/worker`)
 - **Package**: Shared library (`packages/ui`, `packages/utils`)
@@ -140,18 +155,21 @@ scripts/        → Script utilities (not project modules)
 #### Documentation Structure
 
 **Standard Locations**:
+
 1. `./docs/` - Preferred
 2. `./documentation/`
 3. `./wiki/`
 4. Root-level docs (`ARCHITECTURE.md`, `CONTRIBUTING.md`)
 
 **Key Documents**:
+
 - `architecture.md` or `ARCHITECTURE.md`
 - `ADRs/` or `decisions/`
 - `current-task.md` or `context.md`
 - `README.md` (always present)
 
 **Docs Assessment**:
+
 - **Rich**: Has dedicated docs directory with architecture + ADRs
 - **Basic**: Has README + some markdown files
 - **Minimal**: Only README
@@ -164,19 +182,23 @@ Generate structured report:
 # Repository Analysis
 
 ## Type
+
 [Single Repo / Monorepo / Multi-repo]
 
 ## Modules Detected
+
 - [module-name] (type: [app/service/package], path: [path])
 - ...
 
 ## Documentation Structure
+
 - Docs directory: [path or "none"]
 - Architecture docs: [found/not found]
 - ADRs: [found/not found]
 - Assessment: [rich/basic/minimal]
 
 ## Execution Surfaces
+
 - Primary repo: [repo-name]
 - Total modules: [count]
 - Recommended label count: [estimate]
@@ -189,6 +211,7 @@ Generate structured report:
 #### Core Taxonomy
 
 **Type Labels** (required):
+
 ```
 type:feature     - New features
 type:bug         - Bug fixes
@@ -197,6 +220,7 @@ type:research    - Spikes, investigations
 ```
 
 **Priority Labels** (required):
+
 ```
 priority:p0      - Critical (blocks release)
 priority:p1      - High (next sprint)
@@ -205,6 +229,7 @@ priority:p3      - Low (nice to have)
 ```
 
 **Area Labels** (cross-cutting):
+
 ```
 area:ui          - User interface
 area:engine      - Core logic
@@ -218,6 +243,7 @@ area:performance - Performance
 
 **Module Labels** (dynamic):
 Generate based on detected modules:
+
 ```
 module:web       (from apps/web)
 module:api       (from services/api)
@@ -225,6 +251,7 @@ module:ui        (from packages/ui)
 ```
 
 **Status Labels** (optional):
+
 ```
 status:blocked       - Blocked by dependency
 status:llm-ready     - Ready for LLM implementation
@@ -241,12 +268,12 @@ Standard color scheme:
   "type:bug": "d73a4a",
   "type:chore": "fef2c0",
   "type:research": "d4c5f9",
-  
+
   "priority:p0": "b60205",
   "priority:p1": "d93f0b",
   "priority:p2": "fbca04",
   "priority:p3": "0e8a16",
-  
+
   "area:ui": "1d76db",
   "area:engine": "5319e7",
   "area:seo": "c2e0c6",
@@ -255,9 +282,9 @@ Standard color scheme:
   "area:docs": "d4c5f9",
   "area:security": "b60205",
   "area:performance": "fbca04",
-  
+
   "module:*": "0052cc",
-  
+
   "status:blocked": "d73a4a",
   "status:llm-ready": "0e8a16",
   "status:needs-context": "fbca04"
@@ -271,11 +298,13 @@ This skill extends the `github-issues` skill from https://skills.sh/github/aweso
 #### Core Principles from github-issues
 
 **Use Issue Types** (when available):
+
 - Prefer GitHub's native issue types over labels
 - Types: Bug, Feature, Task, Epic
 - Query org types: `gh api graphql -f query='{ organization(login: "ORG") { issueTypes(first: 10) { nodes { name } } } }'`
 
 **Title Guidelines**:
+
 - Specific and actionable
 - Under 72 characters
 - No redundant prefixes (e.g., `[Bug]`) when using types
@@ -285,6 +314,7 @@ This skill extends the `github-issues` skill from https://skills.sh/github/aweso
   - `Add unit tests for auth module` (type=Task)
 
 **Body Structure** (from github-issues templates):
+
 - Use structured templates
 - Clear sections
 - Markdown formatting
@@ -298,17 +328,21 @@ Every issue must include explicit context:
 ## Context
 
 ### Related Documentation
+
 - Architecture: `./docs/architecture.md#auth-system`
 - ADR: `./docs/ADRs/0015-sso-implementation.md`
 - Current Task: `./docs/current-task.md`
 
 ### Related Issues
+
 - Blocks: #123
 - Blocked by: #124
 - Related: #125
 
 ### Code Scope
+
 Files/modules that will be affected:
+
 - `src/auth/sso.ts`
 - `src/auth/providers/`
 - `tests/auth/sso.test.ts`
@@ -321,17 +355,20 @@ Define boundaries clearly:
 ## Scope
 
 ### In Scope
+
 - SSO login flow
 - Error handling for SSO failures
 - Unit tests for SSO provider
 
 ### Out of Scope
+
 - SAML support (separate issue)
 - User profile sync (separate issue)
 ```
 
 **LLM-Ready Criteria**:
 An issue is "LLM-ready" when:
+
 - ✅ Clear goal statement
 - ✅ Context docs linked
 - ✅ Scope explicitly defined
@@ -357,7 +394,7 @@ body:
     attributes:
       value: |
         Use this template for implementation tasks.
-        
+
   - type: input
     id: summary
     attributes:
@@ -366,7 +403,7 @@ body:
       placeholder: "Implement SSO authentication"
     validations:
       required: true
-      
+
   - type: dropdown
     id: priority
     attributes:
@@ -378,7 +415,7 @@ body:
         - priority:p3
     validations:
       required: true
-      
+
   - type: dropdown
     id: area
     attributes:
@@ -394,7 +431,7 @@ body:
         - area:performance
     validations:
       required: false
-      
+
   - type: input
     id: module
     attributes:
@@ -403,14 +440,14 @@ body:
       placeholder: "module:api"
     validations:
       required: false
-      
+
   - type: textarea
     id: context
     attributes:
       label: Context
       description: |
         Link to relevant documentation and context.
-        
+
         Format:
         - Architecture: ./docs/architecture.md#section
         - ADRs: ./docs/ADRs/NNNN-decision.md
@@ -421,24 +458,24 @@ body:
         - Related: #42
     validations:
       required: true
-      
+
   - type: textarea
     id: scope
     attributes:
       label: Scope
       description: |
         Files and modules affected. What's in scope and out of scope?
-        
+
       placeholder: |
         **In Scope:**
         - src/auth/sso.ts
         - tests/auth/sso.test.ts
-        
+
         **Out of Scope:**
         - SAML integration (separate task)
     validations:
       required: true
-      
+
   - type: textarea
     id: goal
     attributes:
@@ -447,7 +484,7 @@ body:
       placeholder: "Enable users to authenticate via SSO providers (Google, GitHub)"
     validations:
       required: true
-      
+
   - type: textarea
     id: constraints
     attributes:
@@ -459,7 +496,7 @@ body:
         - Session handling unchanged
     validations:
       required: false
-      
+
   - type: textarea
     id: acceptance
     attributes:
@@ -490,7 +527,7 @@ body:
       placeholder: "SSO login redirects to 404 page"
     validations:
       required: true
-      
+
   - type: textarea
     id: steps
     attributes:
@@ -503,7 +540,7 @@ body:
         4. Redirected to /404
     validations:
       required: true
-      
+
   - type: textarea
     id: expected
     attributes:
@@ -512,7 +549,7 @@ body:
       placeholder: "Should redirect to /dashboard"
     validations:
       required: true
-      
+
   - type: textarea
     id: actual
     attributes:
@@ -521,7 +558,7 @@ body:
       placeholder: "Redirects to /404 page"
     validations:
       required: true
-      
+
   - type: dropdown
     id: priority
     attributes:
@@ -533,14 +570,14 @@ body:
         - priority:p3
     validations:
       required: true
-      
+
   - type: input
     id: module
     attributes:
       label: Module
       description: Which module is affected?
       placeholder: "module:api"
-      
+
   - type: textarea
     id: context
     attributes:
@@ -568,7 +605,7 @@ body:
       placeholder: "Add OAuth support for Microsoft accounts"
     validations:
       required: true
-      
+
   - type: textarea
     id: motivation
     attributes:
@@ -579,7 +616,7 @@ body:
         - Completes SSO provider coverage
     validations:
       required: true
-      
+
   - type: textarea
     id: solution
     attributes:
@@ -588,7 +625,7 @@ body:
       placeholder: "Add Microsoft as OAuth provider using same pattern as Google/GitHub"
     validations:
       required: true
-      
+
   - type: textarea
     id: acceptance
     attributes:
@@ -600,7 +637,7 @@ body:
         - [ ] Tests pass
     validations:
       required: true
-      
+
   - type: dropdown
     id: priority
     attributes:
@@ -618,50 +655,62 @@ File: `.github/pull_request_template.md`
 
 ```markdown
 ## Related Issue
+
 Closes #
 
 ## What Changed
+
 <!-- Brief summary of changes made -->
 
 ## Why
+
 <!-- Reasoning for this approach -->
 
 ## Context
+
 <!-- Link to relevant documentation -->
 
 ### Documentation
+
 - Architecture: `./docs/architecture.md#section`
 - ADRs: `./docs/ADRs/NNNN-decision.md`
 - Related context: `./docs/current-task.md`
 
 ### Related
+
 - Related PRs: #
 - Related Issues: #
 
 ## Changes
 
 ### Added
-- 
+
+-
 
 ### Modified
-- 
+
+-
 
 ### Removed
-- 
+
+-
 
 ## Testing
 
 ### Test Coverage
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] Manual testing completed
 
 ### How to Test
-1. 
-2. 
-3. 
+
+1.
+2.
+3.
 
 ## Deployment Notes
+
 <!-- Any special deployment considerations -->
 
 - [ ] Database migrations required
@@ -670,9 +719,11 @@ Closes #
 - [ ] Requires coordination with other services
 
 ## Screenshots/Videos
+
 <!-- If applicable -->
 
 ## Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated
@@ -724,28 +775,33 @@ Create custom fields in GitHub Project:
 #### View Definitions
 
 **1. Current Work**
+
 - Filter: Status = "In Progress" OR Status = "In Review"
 - Sort: Priority (P0 first)
 - Layout: Board
 - Group by: Assignee
 
 **2. By Module**
+
 - Filter: All
 - Layout: Table
 - Group by: Module
 - Sort: Priority
 
 **3. P0/P1**
+
 - Filter: Priority = "P0" OR Priority = "P1"
 - Sort: Priority, then Created
 - Layout: List
 
 **4. Bugs**
+
 - Filter: Type = "Bug"
 - Sort: Priority
 - Layout: Table
 
 **5. LLM Ready**
+
 - Filter: LLM Ready = True AND Status = "Todo"
 - Sort: Priority
 - Layout: List
@@ -776,16 +832,20 @@ Create parent issue for large features:
 **Labels**: `type:feature`, `priority:p1`
 
 **Body**:
+
 ```markdown
 ## Overview
+
 Implement SSO authentication for enterprise customers.
 
 ## Goals
+
 - Support Google, GitHub, Microsoft SSO
 - Maintain existing email/password auth
 - Enterprise-grade security
 
 ## Child Tasks
+
 - [ ] #101 - SSO provider abstraction
 - [ ] #102 - Google OAuth integration
 - [ ] #103 - GitHub OAuth integration
@@ -795,10 +855,12 @@ Implement SSO authentication for enterprise customers.
 - [ ] #107 - Documentation
 
 ## Context
+
 - Architecture: ./docs/architecture.md#auth
 - ADR: ./docs/ADRs/0020-sso-strategy.md
 
 ## Acceptance Criteria
+
 - [ ] All child tasks complete
 - [ ] All tests pass
 - [ ] Documentation updated
@@ -812,25 +874,31 @@ Each child references parent:
 **Title**: `Implement Google OAuth integration`
 
 **Body includes**:
+
 ```markdown
 ## Parent Epic
+
 Part of #100 (Add SSO Authentication)
 
 ## Context
+
 [rest of issue template]
 ```
 
 #### Linking Strategy
 
 **In Parent**:
+
 - List all child issues with checkboxes
 - Update checkboxes as children complete
 
 **In Child**:
+
 - Reference parent in "Context" section
 - Use "Part of #N" pattern
 
 **In GitHub Projects**:
+
 - Both parent and children in project
 - Filter by parent issue to see epic progress
 
@@ -868,25 +936,30 @@ Part of #100 (Add SSO Authentication)
 #### Linking Pattern
 
 **In Issue Body**:
+
 ```markdown
 ## Context
 
 ### Documentation
+
 - Architecture: `./docs/architecture.md#auth-system`
 - ADR: `./docs/ADRs/0015-sso-implementation.md`
 - Current work: `./docs/current-task.md`
 
 ### Code
+
 - Implementation: `src/auth/sso/`
 - Tests: `tests/auth/sso/`
 - Config: `config/auth.ts`
 ```
 
 **In PR Description**:
+
 ```markdown
 ## Context
 
 ### Documentation
+
 - Architecture: `./docs/architecture.md#auth-system`
 - ADR: `./docs/ADRs/0020-oauth-providers.md` (new)
 - Updated docs: `./docs/api/auth.md`
@@ -895,12 +968,14 @@ Part of #100 (Add SSO Authentication)
 #### Validation
 
 **Issue Creation Checklist**:
+
 - [ ] Context section present
 - [ ] At least one doc link (architecture or ADR)
 - [ ] Code scope identified
 - [ ] No doc duplication in issue body
 
 **PR Review Checklist**:
+
 - [ ] Documentation links included
 - [ ] New ADRs referenced if applicable
 - [ ] Architecture docs updated if needed
@@ -913,22 +988,22 @@ Part of #100 (Add SSO Authentication)
 ```
 1. Pick Issue
    ↓ (Filter: status:llm-ready, priority:p0/p1)
-   
+
 2. Read Issue
    ↓ (Parse: goal, context, scope, acceptance criteria)
-   
+
 3. Read Linked Docs
    ↓ (Follow links: architecture, ADRs, context)
-   
+
 4. Inspect Code
    ↓ (Navigate to files in scope)
-   
+
 5. Implement
    ↓ (Write code, tests)
-   
+
 6. Open PR
    ↓ (Link issue, include context)
-   
+
 7. Mark Issue Done
    ↓ (Close via PR merge)
 ```
@@ -938,12 +1013,14 @@ Part of #100 (Add SSO Authentication)
 An issue is ready for LLM implementation when ALL criteria met:
 
 **✅ Clear Goal**:
+
 - One-sentence summary
 - Specific, measurable outcome
 - Example: ✅ "Implement Google OAuth login"
 - Example: ❌ "Fix auth" (too vague)
 
 **✅ Context Linked**:
+
 - Architecture doc section
 - At least one ADR (if applicable)
 - Related issues (if any)
@@ -951,24 +1028,28 @@ An issue is ready for LLM implementation when ALL criteria met:
 - Example: ❌ No documentation links
 
 **✅ Scope Defined**:
+
 - Files/modules listed
 - In scope / out of scope explicit
 - Example: ✅ "In scope: src/auth/google.ts, Out: SAML"
 - Example: ❌ "Auth module" (which files?)
 
 **✅ Acceptance Criteria**:
+
 - Checkbox list
 - Testable conditions
 - Example: ✅ "[ ] OAuth flow completes successfully"
 - Example: ❌ "Make it work" (not testable)
 
 **✅ No Blockers**:
+
 - No `status:blocked` label
 - No "Blocked by #N" in description
 - Example: ✅ All dependencies resolved
 - Example: ❌ "Blocked by #42 (API endpoint)"
 
 **✅ Files Identified**:
+
 - Specific file paths listed
 - Test files included
 - Example: ✅ "src/auth/google.ts, tests/auth/google.test.ts"
@@ -977,12 +1058,14 @@ An issue is ready for LLM implementation when ALL criteria met:
 #### Labeling
 
 When issue meets all criteria:
+
 ```bash
 # Add label via GitHub MCP or CLI
 gh issue edit [NUMBER] --add-label "status:llm-ready"
 ```
 
 When picked up for implementation:
+
 ```bash
 gh issue edit [NUMBER] --remove-label "status:llm-ready"
 ```
@@ -992,6 +1075,7 @@ gh issue edit [NUMBER] --remove-label "status:llm-ready"
 #### One Repo as Control Center
 
 **For Monorepos**:
+
 - Primary repo = monorepo root
 - All issues in root repository
 - Labels include module tags
@@ -1000,6 +1084,7 @@ gh issue edit [NUMBER] --remove-label "status:llm-ready"
   - Issue: "Fix login bug" with `module:web` label
 
 **For Multi-repo Systems**:
+
 - Choose one repo as "control center"
 - Usually: main app or API repo
 - All cross-cutting issues tracked there
@@ -1007,34 +1092,40 @@ gh issue edit [NUMBER] --remove-label "status:llm-ready"
 
 **Decision Matrix**:
 
-| Scenario | Control Center | Module Issues |
-|----------|---------------|---------------|
-| Monorepo | Root repo | Root repo (with module labels) |
-| Multi-repo (services) | API repo | API repo (reference other repos) |
-| Multi-repo (frontend+backend) | Primary app | Primary app (reference backend repo) |
-| Submodules | Parent repo | Parent repo (reference submodules) |
+| Scenario                      | Control Center | Module Issues                        |
+| ----------------------------- | -------------- | ------------------------------------ |
+| Monorepo                      | Root repo      | Root repo (with module labels)       |
+| Multi-repo (services)         | API repo       | API repo (reference other repos)     |
+| Multi-repo (frontend+backend) | Primary app    | Primary app (reference backend repo) |
+| Submodules                    | Parent repo    | Parent repo (reference submodules)   |
 
 #### Cross-repo References
 
 **Issue Body Pattern**:
+
 ```markdown
 ## Scope
 
 ### Repositories
+
 - Primary: `company/web-app` (this repo)
 - Backend: `company/api` - requires endpoint update
 - Mobile: `company/mobile` - UI changes needed
 
 ### Files
+
 **This repo** (`company/web-app`):
+
 - src/auth/login.tsx
 - tests/auth/login.test.tsx
 
 **External** (`company/api`):
+
 - See issue company/api#42
 ```
 
 **Linking Pattern**:
+
 - Use `owner/repo#number` format
 - Example: "Requires company/api#42"
 - Create issues in external repos when needed
@@ -1045,6 +1136,7 @@ gh issue edit [NUMBER] --remove-label "status:llm-ready"
 Generate module labels from repo structure:
 
 **Monorepo Example**:
+
 ```
 apps/
   web/         → module:web
@@ -1059,6 +1151,7 @@ packages/
 ```
 
 **Multi-repo Example**:
+
 ```
 company/web-app      → module:web
 company/api          → module:api
@@ -1066,6 +1159,7 @@ company/mobile       → module:mobile
 ```
 
 **Usage**:
+
 - Add module label to every issue
 - Filter project by module
 - Track work by module
@@ -1143,11 +1237,11 @@ Create at repository root: `.github-os.json`
       "properties": {
         "customTypes": {
           "type": "array",
-          "items": {"type": "string"}
+          "items": { "type": "string" }
         },
         "customAreas": {
           "type": "array",
-          "items": {"type": "string"}
+          "items": { "type": "string" }
         }
       }
     },
@@ -1238,11 +1332,7 @@ Create at repository root: `.github-os.json`
 {
   "projectName": "E-commerce Platform",
   "docsDir": "./docs",
-  "repos": [
-    "company/web-app",
-    "company/api",
-    "company/mobile"
-  ],
+  "repos": ["company/web-app", "company/api", "company/mobile"],
   "modules": [
     {
       "name": "web",
@@ -1262,18 +1352,21 @@ Create at repository root: `.github-os.json`
 #### Purpose
 
 **For LLMs**:
+
 - Quick project context
 - Module discovery
 - Docs location
 - Repo topology
 
 **For Tools**:
+
 - Integration point for other tools
 - Notion sync (future)
 - Linear migration (future)
 - Analytics (future)
 
 **For Humans**:
+
 - Project overview
 - Module map
 - Convention documentation
@@ -1283,11 +1376,13 @@ Create at repository root: `.github-os.json`
 ### Design-Only Mode
 
 **When to use**:
+
 - Want to review before committing
 - Exploring options
 - Team decision needed
 
 **Output**:
+
 1. Complete analysis report
 2. Label definitions (JSON)
 3. Issue templates (markdown)
@@ -1296,6 +1391,7 @@ Create at repository root: `.github-os.json`
 6. Setup instructions (markdown)
 
 **Action**:
+
 - Output all content as markdown
 - User manually creates files
 - User manually creates labels
@@ -1303,11 +1399,13 @@ Create at repository root: `.github-os.json`
 ### Auto-Generate Mode
 
 **When to use**:
+
 - Ready to implement immediately
 - Solo builder with authority
 - Clear path forward
 
 **Actions**:
+
 1. ✅ Create .github-os.json
 2. ✅ Create .github/ISSUE_TEMPLATE/ files
 3. ✅ Create .github/pull_request_template.md
@@ -1316,6 +1414,7 @@ Create at repository root: `.github-os.json`
 6. ⚠️ GitHub Project setup (manual - provide instructions)
 
 **Process**:
+
 ```
 1. Generate all files
    ↓
@@ -1359,8 +1458,8 @@ mcp3_create_label({
   repo: "myapp",
   name: "type:feature",
   color: "0e8a16",
-  description: "New features"
-})
+  description: "New features",
+});
 ```
 
 #### Creating Issues
@@ -1374,8 +1473,8 @@ mcp3_issue_write({
   title: "Implement SSO authentication",
   body: "[full issue body]",
   labels: ["type:feature", "priority:p1", "module:api"],
-  type: "Feature" // if org has issue types
-})
+  type: "Feature", // if org has issue types
+});
 ```
 
 #### Creating Files
@@ -1388,8 +1487,8 @@ mcp3_create_or_update_file({
   path: ".github/ISSUE_TEMPLATE/task.yml",
   content: "[template content]",
   message: "Add GitHub OS issue template",
-  branch: "main"
-})
+  branch: "main",
+});
 ```
 
 ### Fallback: GitHub CLI
@@ -1421,12 +1520,12 @@ gh api repos/{owner}/{repo}/contents/{path} \
 1. Check: GitHub MCP available?
    ↓ YES
    Use MCP for all operations
-   
+
    ↓ NO
 2. Check: GitHub CLI available?
    ↓ YES
    Use gh CLI
-   
+
    ↓ NO
 3. Output manual instructions
 ```
@@ -1460,6 +1559,7 @@ gh api repos/{owner}/{repo}/contents/{path} \
 #### 3. Execute
 
 **Design-Only**:
+
 ```
 → Output all files as markdown
 → Output label creation script
@@ -1468,6 +1568,7 @@ gh api repos/{owner}/{repo}/contents/{path} \
 ```
 
 **Auto-Generate**:
+
 ```
 → Create .github-os.json
 → Create .github/ISSUE_TEMPLATE/ files
@@ -1492,12 +1593,14 @@ gh api repos/{owner}/{repo}/contents/{path} \
 ### Checkpoints
 
 **After Analysis**:
+
 ```
 "Repository analysis complete. Found [N] modules in [type] repo.
 Proceed with GitHub OS design?"
 ```
 
 **After Design**:
+
 ```
 "GitHub OS design complete:
 - [N] labels (type, priority, area, module, status)
@@ -1512,6 +1615,7 @@ Choose execution mode:
 ```
 
 **After Execution**:
+
 ```
 "GitHub OS setup complete:
 ✅ .github-os.json created
@@ -1534,12 +1638,14 @@ Validation report:
 ### ❌ Unstructured Issues
 
 **Wrong**:
+
 ```
 Title: Fix auth
 Body: auth is broken
 ```
 
 **Right**:
+
 ```
 Title: Login fails with SSO enabled
 Labels: type:bug, priority:p0, module:api
@@ -1562,12 +1668,14 @@ SSO login redirects to 404
 ### ❌ Missing Context
 
 **Wrong**:
+
 ```
 ## Context
 Not provided
 ```
 
 **Right**:
+
 ```
 ## Context
 - Architecture: ./docs/architecture.md#payment-flow
@@ -1579,11 +1687,13 @@ Not provided
 ### ❌ No Module Labeling
 
 **Wrong**:
+
 ```
 Labels: bug
 ```
 
 **Right** (monorepo):
+
 ```
 Labels: type:bug, priority:p1, module:api
 ```
@@ -1591,12 +1701,14 @@ Labels: type:bug, priority:p1, module:api
 ### ❌ Splitting Issues Across Repos
 
 **Wrong** (multi-repo):
+
 ```
 Repo A: Issue #1 "Fix login (frontend)"
 Repo B: Issue #2 "Fix login (backend)"
 ```
 
 **Right**:
+
 ```
 Primary Repo: Issue #1 "Fix login"
 - Scope includes frontend (this repo) + backend (repo-b)
@@ -1606,6 +1718,7 @@ Primary Repo: Issue #1 "Fix login"
 ### ❌ Duplicating Docs
 
 **Wrong**:
+
 ```
 ## Architecture
 
@@ -1613,6 +1726,7 @@ Primary Repo: Issue #1 "Fix login"
 ```
 
 **Right**:
+
 ```
 ## Context
 Architecture: ./docs/architecture.md#relevant-section
@@ -1621,11 +1735,13 @@ Architecture: ./docs/architecture.md#relevant-section
 ### ❌ GitHub as Wiki
 
 **Wrong**:
+
 - Storing design docs in issue comments
 - Long discussions in issues
 - Using issues as documentation
 
 **Right**:
+
 - Design docs in ./docs/
 - Decisions in ADRs
 - Issues reference docs, not replace them
@@ -1635,12 +1751,14 @@ Architecture: ./docs/architecture.md#relevant-section
 This skill **extends** the github-issues skill:
 
 ### Use github-issues for:
+
 - Creating individual issues
 - Updating existing issues
 - Querying issues
 - Standard CRUD operations
 
 ### Use github-os for:
+
 - Initial system setup
 - Label taxonomy design
 - Template creation
@@ -1672,6 +1790,7 @@ This skill **extends** the github-issues skill:
 ### Example 1: Single Repo Setup
 
 **Input**:
+
 ```
 Repository: company/myapp
 Structure:
@@ -1683,6 +1802,7 @@ Structure:
 **Output**:
 
 **Analysis**:
+
 ```
 Type: Single repository
 Modules: 1 (main app)
@@ -1690,11 +1810,13 @@ Docs: Rich (./docs with architecture + ADRs)
 ```
 
 **Labels** (10):
+
 - type:feature, type:bug, type:chore, type:research
 - priority:p0, priority:p1, priority:p2, priority:p3
 - area:ui, area:engine
 
 **.github-os.json**:
+
 ```json
 {
   "projectName": "MyApp",
@@ -1714,6 +1836,7 @@ Docs: Rich (./docs with architecture + ADRs)
 ### Example 2: Monorepo Setup
 
 **Input**:
+
 ```
 Repository: company/platform
 Structure:
@@ -1731,6 +1854,7 @@ Structure:
 **Output**:
 
 **Analysis**:
+
 ```
 Type: Monorepo
 Modules: 5
@@ -1743,23 +1867,25 @@ Docs: Rich
 ```
 
 **Labels** (17):
-- type:* (4)
-- priority:* (4)
-- area:* (6)
+
+- type:\* (4)
+- priority:\* (4)
+- area:\* (6)
 - module:web, module:mobile, module:api, module:worker, module:ui
 
 **.github-os.json**:
+
 ```json
 {
   "projectName": "Platform",
   "docsDir": "./docs",
   "repos": ["company/platform"],
   "modules": [
-    {"name": "web", "path": "./apps/web", "type": "app"},
-    {"name": "mobile", "path": "./apps/mobile", "type": "app"},
-    {"name": "api", "path": "./services/api", "type": "service"},
-    {"name": "worker", "path": "./services/worker", "type": "service"},
-    {"name": "ui", "path": "./packages/ui", "type": "package"}
+    { "name": "web", "path": "./apps/web", "type": "app" },
+    { "name": "mobile", "path": "./apps/mobile", "type": "app" },
+    { "name": "api", "path": "./services/api", "type": "service" },
+    { "name": "worker", "path": "./services/worker", "type": "service" },
+    { "name": "ui", "path": "./packages/ui", "type": "package" }
   ],
   "issueTracking": "github"
 }
@@ -1874,27 +2000,35 @@ Solution:
 3. Authenticate: gh auth refresh -s repo
 ```
 
+### Project Item-Add Fails
+
+See [`assets/project-item-add-guide.md`](assets/project-item-add-guide.md) — covers the three ID types (issue number, node ID, local project item ID), the correct GraphQL mutation flow, common mistakes, and a ready-to-use script template.
+
 ## Best Practices
 
 ### Label Hygiene
+
 - **Consistent naming**: Always use `category:value` format
 - **Color coding**: Use standard colors for visual scanning
 - **Description**: Every label needs clear description
 - **No orphans**: Don't create labels never used
 
 ### Issue Quality
+
 - **Context first**: Always link to docs before describing
 - **Scope explicit**: List exact files, not vague descriptions
 - **Testable criteria**: Acceptance criteria must be verifiable
 - **One goal**: Each issue = one coherent change
 
 ### Template Evolution
+
 - **Start simple**: Use provided templates as-is initially
 - **Iterate based on use**: Adjust after 10+ issues created
 - **Team input**: Get feedback from all team members
 - **Version in git**: Templates in .github/ tracked like code
 
 ### Docs Discipline
+
 - **Write docs first**: Architecture + ADRs before issues
 - **Keep current**: Update docs as you implement
 - **Link generously**: Over-link rather than under-link
