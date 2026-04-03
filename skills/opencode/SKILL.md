@@ -57,7 +57,7 @@ status_path=<path to status file>  # while running
 
 ## Status & Progress Tracking
 
-While a task is running, the script writes status files to `.runtime/` in the skill directory:
+While a task is running, the script writes status files to `.runtime/` in the **project/workspace directory**:
 
 **Status file** (`.runtime/<timestamp>.status`):
 ```
