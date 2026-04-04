@@ -1,0 +1,22 @@
+[
+  {
+    "query": "create a skill for writing cold emails",
+    "should_trigger": true
+  },
+  {
+    "query": "make me a new skill that helps with A/B testing",
+    "should_trigger": true
+  },
+  {
+    "query": "i want to create a skill from scratch for my team",
+    "should_trigger": true
+  },
+  {
+    "query": "write a python script to parse JSON",
+    "should_trigger": false
+  },
+  {
+    "query": "how do I install npm packages",
+    "should_trigger": false
+  }
+]
