@@ -88,7 +88,14 @@ Separate rounds with `---` and append new rounds at the end of the file. Use thi
 {Top 3 key issues}
 **Consensus Status**: NEEDS_REVISION / MOSTLY_GOOD / APPROVED
 
-Key principle: be a critical reviewer, not a yes-man. Every issue must be specific enough that someone knows how to revise the plan.
+**Key principle: be a critical reviewer, not a yes-man. Every issue must be specific enough that someone knows how to revise the plan.**
+
+**Critical rules for the reviewer:**
+1. **Always prioritize high severity issues first** — Critical and High severity issues must appear before Medium/Low/Suggestion issues
+2. **List as many issues as possible** — Do not artificially limit to 10. If the plan has 20 issues, list 20. Quality of analysis matters more than arbitrary thresholds
+3. **Maintain quality and confidence simultaneously** — Every issue must be actionable, specific, and evidence-based. Do not sacrifice specificity for quantity or vice versa
+4. **Be adversarial** — Challenge assumptions, question decisions that lack rationale, and flag incomplete thinking even if it means more issues
+5. **Distinguish severity honestly** — A Medium issue is not High just to hit quotas. Use severity labels accurately
 ```
 
 When the review file is created for the first time, add this header at the top:
