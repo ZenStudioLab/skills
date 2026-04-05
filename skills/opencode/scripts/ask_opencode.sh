@@ -28,6 +28,7 @@ Options:
   -w, --workspace <path>       Workspace directory (default: current directory)
       --model <name>           Model override (format: provider/model)
       --agent <name>          Agent to use
+      --reasoning <level>      Accepted for peer compatibility; currently ignored
   -o, --output <path>         Output file path
   -h, --help                  Show this help
 
@@ -169,6 +170,7 @@ workspace="${PWD}"
 task_text=""
 model=""
 agent_name=""
+reasoning_level=""
 output_path=""
 session_id=""
 file_refs=()
@@ -182,6 +184,7 @@ while [[ $# -gt 0 ]]; do
     -f|--file|--focus) append_file_refs "${2:-}"; shift 2 ;;
     --model)          model="${2:-}"; shift 2 ;;
     --agent)          agent_name="${2:-}"; shift 2 ;;
+    --reasoning)      reasoning_level="${2:-}"; shift 2 ;;
     --session)        session_id="${2:-}"; shift 2 ;;
     -o|--output)      output_path="${2:-}"; shift 2 ;;
     -W|--watch)       watch_mode=true; shift ;;
@@ -221,10 +224,10 @@ fi
 
 timestamp="$(date -u +"%Y%m%d-%H%M%S")"
 if [[ -z "$output_path" ]]; then
-  output_path="$skill_dir/.runtime/${timestamp}.md"
+  output_path="$workspace/.runtime/${timestamp}.md"
 fi
 mkdir -p "$(dirname "$output_path")"
-mkdir -p "$skill_dir/.runtime"
+mkdir -p "$workspace/.runtime"
 
 status_file="${output_path%.md}.status"
 progress_file="${output_path%.md}.progress"
@@ -275,9 +278,10 @@ if $watch_mode; then
   echo "[INFO] Progress: $progress_file" >&2
 fi
 
-stderr_file="$(mktemp)"
-json_file="$(mktemp)"
-prompt_file="$(mktemp)"
+mkdir -p "$workspace/.runtime"
+stderr_file="$workspace/.runtime/opencode_stderr_$(date +%Y%m%d-%H%M%S).tmp"
+json_file="$workspace/.runtime/opencode_json_$(date +%Y%m%d-%H%M%S).tmp"
+prompt_file="$workspace/.runtime/opencode_prompt_$(date +%Y%m%d-%H%M%S).tmp"
 trap 'rm -f "$stderr_file" "$json_file" "$prompt_file"' EXIT
 
 printf "%s" "$prompt" > "$prompt_file"
@@ -286,11 +290,10 @@ cd "$workspace"
 declare -a activity_buffer=()
 declare -a shell_buffer=()
 declare -a file_buffer=()
+seen_text=false
+seen_step_start=false
 
-{
-  # Stream opencode output directly to while loop (no & backgrounding)
-  # stderr goes to stderr_file, stdout is piped to while loop
-  "${cmd[@]}" "$(cat "$prompt_file")" 2>"$stderr_file" | while IFS= read -r line; do
+{ "${cmd[@]}" "$(cat "$prompt_file")" 2>"$stderr_file" | while IFS= read -r line; do
     # Clean line
     cleaned="${line//$'\r'/}"
     cleaned="${cleaned//$'\004'/}"
@@ -300,7 +303,7 @@ declare -a file_buffer=()
 
     # Extract session_id if present (early)
     if [[ -z "$session_id" ]]; then
-      extracted="$(printf '%s' "$cleaned" | jq -r '.sessionID // .thread_id // .id // empty' 2>/dev/null)"
+      extracted="$(printf '%s' "$cleaned" | jq -r '.sessionID // .thread_id // .id // empty' 2>/dev/null || true)"
       [[ -n "$extracted" ]] && session_id="$extracted"
       if [[ -n "$session_id" ]]; then
         write_status "$status_file" "running" "$session_id" "Session started" "$progress_file"
@@ -311,49 +314,50 @@ declare -a file_buffer=()
     fi
 
     # Parse and categorize - opencode uses step_start, text, step_finish format
-    type="$(printf '%s' "$cleaned" | jq -r '.type // empty' 2>/dev/null)"
+    type="$(printf '%s' "$cleaned" | jq -r '.type // empty' 2>/dev/null || true)"
     msg=""
     progress_type="activity"
 
     case "$type" in
       "step_start")
-        msg="Task started"
-        write_progress "$progress_file" "activity" "$msg"
+        if ! $seen_step_start; then
+          msg="Task started"
+        fi
+        seen_step_start=true
         ;;
       "text")
-        text_content="$(printf '%s' "$cleaned" | jq -r '.part.text // ""' 2>/dev/null)"
+        text_content="$(printf '%s' "$cleaned" | jq -r '.part.text // ""' 2>/dev/null || true)"
         if [[ -n "$text_content" ]]; then
           msg="Response: ${text_content:0:200}"
           progress_type="message"
-          write_progress "$progress_file" "$progress_type" "$msg"
+          seen_text=true
         fi
         ;;
       "step_finish")
-        msg="Task finished"
-        write_progress "$progress_file" "complete" "$msg"
+        $seen_text && msg="Task finished" && progress_type="complete"
         ;;
       "item_start"|"item_completed")
-        item_type="$(printf '%s' "$cleaned" | jq -r '.item.type // .item.name // empty' 2>/dev/null)"
+        item_type="$(printf '%s' "$cleaned" | jq -r '.item.type // .item.name // empty' 2>/dev/null || true)"
         if [[ "$item_type" == "command_execution" || "$item_type" == "shell" ]]; then
-          cmd_name="$(printf '%s' "$cleaned" | jq -r '.item.command // (.item.arguments | fromjson | .command) // "unknown"' 2>/dev/null)"
-          output="$(printf '%s' "$cleaned" | jq -r '.item.output // ""' 2>/dev/null | head -c 200)"
+          cmd_name="$(printf '%s' "$cleaned" | jq -r '.item.command // (.item.arguments | fromjson | .command) // "unknown"' 2>/dev/null || true)"
+          output="$(printf '%s' "$cleaned" | jq -r '.item.output // ""' 2>/dev/null | head -c 200 || true)"
           msg="Shell: ${cmd_name:0:100}"
           if [[ -n "$output" ]]; then
             msg+=" → ${output:0:100}"
           fi
           progress_type="shell"
         elif [[ "$item_type" == "tool_call" ]]; then
-          item_name="$(printf '%s' "$cleaned" | jq -r '.item.name // empty' 2>/dev/null)"
+          item_name="$(printf '%s' "$cleaned" | jq -r '.item.name // empty' 2>/dev/null || true)"
           if [[ "$item_name" == "write_file" || "$item_name" == "Write" ]]; then
-            tool_path="$(printf '%s' "$cleaned" | jq -r '.item.arguments | fromjson | .path // "unknown"' 2>/dev/null)"
+            tool_path="$(printf '%s' "$cleaned" | jq -r '.item.arguments | fromjson | .path // "unknown"' 2>/dev/null || true)"
             msg="File written: $tool_path"
             progress_type="file"
           elif [[ "$item_name" == "patch_file" || "$item_name" == "Patch" ]]; then
-            tool_path="$(printf '%s' "$cleaned" | jq -r '.item.arguments | fromjson | .path // "unknown"' 2>/dev/null)"
+            tool_path="$(printf '%s' "$cleaned" | jq -r '.item.arguments | fromjson | .path // "unknown"' 2>/dev/null || true)"
             msg="File patched: $tool_path"
             progress_type="file"
           elif [[ "$item_name" == "edit_file" || "$item_name" == "Edit" ]]; then
-            tool_path="$(printf '%s' "$cleaned" | jq -r '.item.arguments | fromjson | .path // "unknown"' 2>/dev/null)"
+            tool_path="$(printf '%s' "$cleaned" | jq -r '.item.arguments | fromjson | .path // "unknown"' 2>/dev/null || true)"
             msg="File edited: $tool_path"
             progress_type="file"
           fi
@@ -362,11 +366,11 @@ declare -a file_buffer=()
         ;;
       *)
         # Try generic parsing for unknown types
-        item_type="$(printf '%s' "$cleaned" | jq -r '.item.type // .item.name // empty' 2>/dev/null)"
+        item_type="$(printf '%s' "$cleaned" | jq -r '.item.type // .item.name // empty' 2>/dev/null || true)"
         if [[ "$item_type" == "tool_call" ]]; then
-          tool_name="$(printf '%s' "$cleaned" | jq -r '.item.name // empty' 2>/dev/null)"
+          tool_name="$(printf '%s' "$cleaned" | jq -r '.item.name // empty' 2>/dev/null || true)"
           if [[ "$tool_name" == "write_file" || "$tool_name" == "Write" ]]; then
-            tool_path="$(printf '%s' "$cleaned" | jq -r '.item.arguments | fromjson | .path // "unknown"' 2>/dev/null)"
+            tool_path="$(printf '%s' "$cleaned" | jq -r '.item.arguments | fromjson | .path // "unknown"' 2>/dev/null || true)"
             msg="File written: $tool_path"
             write_progress "$progress_file" "file" "$msg"
           fi
@@ -391,8 +395,7 @@ declare -a file_buffer=()
 
   done
   # Pipe closes when opencode finishes, while loop exits
-
-} 2>&1 | head -c 100M  # capture any remaining stderr, prevent infinite pipe
+}
 
 if [[ -s "$stderr_file" ]] && grep -q '\[ERROR\]' "$stderr_file" 2>/dev/null; then
   write_status "$status_file" "failed" "$session_id" "Command failed" "$progress_file"
@@ -463,10 +466,9 @@ fi
 
 # Update status to completed - extract session_id from json_file if not set
 if [[ -z "$session_id" ]] && [[ -s "$json_file" ]]; then
-  session_id="$(jq -r '.sessionID // .thread_id // .id // empty' "$json_file" 2>/dev/null | head -1)"
+  session_id="$(jq -r '.sessionID // .thread_id // .id // empty' "$json_file" 2>/dev/null | head -1 || true)"
 fi
 write_status "$status_file" "completed" "$session_id" "Task completed" "$progress_file"
-write_progress "$progress_file" "complete" "Task finished"
 
 if $watch_mode; then
   echo "[INFO] Task completed. Output: $output_path" >&2
