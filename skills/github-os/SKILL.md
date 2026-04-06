@@ -1,6 +1,6 @@
 ---
 name: github-os
-description: "Set up a GitHub-based Operating System for software projects. Use when: (1) Starting a new project and need issue tracking setup, (2) Restructuring GitHub workflows, (3) Setting up execution system for solo builder or team, (4) Establishing LLM-driven development workflows, (5) Migrating from other tools to GitHub, (6) Setting up monorepo or multi-repo issue tracking, (7) Need integration between GitHub issues and repo docs, (8) Want 'GitHub as OS' with docs as knowledge layer."
+description: "Set up a GitHub-based Operating System for software projects. Use when: (1) Starting a new project and need issue tracking setup, (2) Restructuring GitHub workflows, (3) Setting up execution system for solo builder or team, (4) Establishing LLM-driven development workflows, (5) Migrating from other tools to GitHub, (6) Setting up monorepo or multi-repo issue tracking, (7) Need integration between GitHub issues and repo docs, (8) Want 'GitHub as OS' with docs as knowledge layer. (9) Quick issue/task creation: user says 'create task', 'add task', 'add tasks', 'create issue', 'add issue' — skip setup, write LLM-ready issue directly to current repo. (10) Knowledge base notes: user says 'add note', 'save note', 'create note', 'list notes', 'show notes', 'find note', 'search notes', 'update note', 'edit note', 'delete note' — CRUD operations against ZenStudioLab/knowledge-base repo."
 ---
 
 # GitHub OS
@@ -87,6 +87,217 @@ The GitHub OS system is built on three pillars:
    ↓
 5. Validate System
 ```
+
+## Quick Task & Issue Creation
+
+**Trigger phrases (case-insensitive):** "create task", "create tasks", "add task", "add tasks", "add issue", "create issue"
+
+This is a **fast path** — it does NOT run the full GitHub OS setup workflow. Use it when the user wants to quickly log a task or issue against an existing repo.
+
+### Workflow
+
+```
+1. Detect default repo
+   ├─ Check for .github-os.json in cwd → use `owner` + `repo` fields
+   ├─ Else: run `git remote get-url origin` → parse owner/repo from URL
+   └─ Else: ask user "Which repo? (owner/repo)"
+
+2. Confirm repo with user (single inline prompt):
+   "Creating issue in <owner/repo>. Different repo? (type owner/repo or press Enter to continue)"
+
+3. Parse intent from user's message:
+   - Title        (required — extract from message or ask)
+   - Type label   feature | bug | task | chore  (infer; default = task)
+   - Priority     p0 | p1 | p2 | p3             (infer; default = p2)
+   - Area label   (optional — infer from context if obvious)
+
+4. Write LLM-ready issue body:
+
+   ## Summary
+   <one-line description>
+
+   ## Context
+   <relevant background; link to docs/architecture.md or ADR if known>
+
+   ## Scope
+   **In:** <what this covers>
+   **Out:** <what this does NOT cover>
+
+   ## Acceptance Criteria
+   - [ ] <criterion 1>
+   - [ ] <criterion 2>
+
+5. Create issue via GitHub MCP:
+   github_create_issue({ owner, repo, title, body, labels: [type, priority, area?] })
+
+6. Confirm result:
+   "✓ Issue #N created: <title>
+    → <url>"
+```
+
+### Label Inference Rules
+
+| User says | type label | priority |
+|-----------|-----------|----------|
+| "bug", "broken", "error", "fix" | `type:bug` | p1 |
+| "feature", "add", "implement", "build" | `type:feature` | p2 |
+| "chore", "cleanup", "refactor", "update" | `type:chore` | p3 |
+| "task", "todo", anything else | `type:task` | p2 |
+| "urgent", "critical", "blocking", "asap" | — | p0 |
+| "high priority", "important" | — | p1 |
+
+---
+
+## Knowledge Base Operations
+
+**Pinned repo:** `ZenStudioLab/knowledge-base`
+
+**Trigger phrases (case-insensitive):**
+- Create: "add note", "save note", "create note", "jot down", "log note"
+- Read: "list notes", "show notes", "show my notes"
+- Search: "find note", "search notes", "find notes about"
+- Update: "update note", "edit note"
+- Delete: "delete note", "remove note"
+
+### Category Detection
+
+On the first KB operation in a session:
+
+```
+1. Call github_list_directory(owner="ZenStudioLab", repo="knowledge-base", path="")
+2. Extract top-level directories → these are the available categories
+3. If repo is empty, default categories: dev, meetings, ideas, personal
+4. Cache categories for the rest of the session
+```
+
+When creating a note, infer category from content:
+- Contains "meeting", "standup", "sync", "call" → `meetings/`
+- Contains code, library, architecture, API, deploy → `dev/`
+- Starts with "idea:", "what if", "maybe we should" → `ideas/`
+- Otherwise → ask: "Which category? [list detected folders]"
+
+User can also specify inline: "add note **in dev** about X" or "save note **to meetings**".
+
+### Note Format
+
+All notes use Markdown with YAML frontmatter:
+
+```markdown
+---
+title: <Title>
+date: YYYY-MM-DD
+tags: [tag1, tag2]
+---
+
+<content>
+```
+
+Filename pattern: `YYYY-MM-DD-slugified-title.md`
+Example: `2026-04-06-api-design-meeting.md`
+
+### CRUD Workflows
+
+#### CREATE — "add note [content]" / "save note [content]"
+
+```
+1. Parse from user message:
+   - title   (required — first sentence or explicit title)
+   - content (the body)
+   - tags    (keywords from content, 2-4 max)
+   - category (infer via rules above, or ask)
+
+2. Generate:
+   - date     = today (YYYY-MM-DD)
+   - filename = YYYY-MM-DD-slugified-title.md
+   - path     = <category>/<filename>
+
+3. Build file content using note template (see assets/knowledge-base-note-template.md)
+
+4. github_create_file({
+     owner: "ZenStudioLab",
+     repo:  "knowledge-base",
+     path:  "<category>/<filename>",
+     content: <base64 encoded markdown>,
+     message: "note: add <title>"
+   })
+
+5. Confirm: "✓ Note saved: <category>/<filename>"
+```
+
+#### READ / LIST — "list notes [in category]"
+
+```
+1. If category specified → github_list_directory(path="<category>")
+   Else               → github_list_directory(path="")  (show all categories)
+
+2. Display as table:
+   | File | Date | Preview |
+   |------|------|---------|
+   | meetings/2026-04-06-api.md | 2026-04-06 | API redesign discussion... |
+```
+
+#### SEARCH — "find note about [query]"
+
+```
+1. github_search_code({
+     owner: "ZenStudioLab",
+     repo: "knowledge-base",
+     query: "<user query>"
+   })
+
+2. Display matches:
+   | File | Matching line |
+   |------|---------------|
+   | dev/api-design.md | "...REST vs GraphQL for the new endpoint..." |
+
+3. Offer: "Open any of these? (type filename)"
+```
+
+#### UPDATE — "update note [title or path] [new content / changes]"
+
+```
+1. Locate file:
+   - If path given → use directly
+   - Else → search by title (github_search_code)
+   - If multiple matches → show list, ask user to pick
+
+2. Fetch current content + SHA:
+   github_get_file_content({ owner, repo, path }) → { content, sha }
+
+3. Apply changes:
+   - Full replace if user provides complete new content
+   - Append if user says "add to note" / "append"
+   - Merge/edit if user describes specific changes
+
+4. github_update_file({
+     owner, repo, path,
+     content: <base64 new content>,
+     sha: <current sha>,
+     message: "note: update <title>"
+   })
+
+5. Confirm: "✓ Note updated: <path>"
+```
+
+#### DELETE — "delete note [title or path]"
+
+```
+1. Locate file (same as UPDATE step 1)
+
+2. Confirm before deleting:
+   "Delete <path>? This cannot be undone. (yes/no)"
+
+3. On "yes":
+   github_delete_file({
+     owner, repo, path,
+     sha: <current sha>,
+     message: "note: delete <title>"
+   })
+
+4. Confirm: "✓ Note deleted: <path>"
+```
+
+---
 
 ## Step 1: Repository Analysis
 
