@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# WARNING: Do not embed external file content inside this heredoc.
 usage() {
   cat <<'USAGE'
 Usage:
@@ -34,37 +35,8 @@ Options:
 
 Output (on success):
   session_id=<thread_id>       Use with --session for follow-up calls
-  output_path=<file>          Path to response markdown
-  status_path=<file>          Path to status file (while running)
-
-Status file format:
-  status=running|completed|failed
-  session_id=<id>
-  started_at=<timestamp>
-  last_activity=<description>
-  progress_path=<file>
-
-Progress file format (JSONL):
-  {"ts":"<timestamp>","type":"activity","msg":"<description>"}
-  {"ts":"<timestamp>","type":"shell","cmd":"<command>","output":"<output>"}
-  {"ts":"<timestamp>","type":"file","action":"write|edit|patch","path":"<file>"}
-  {"ts":"<timestamp>","type":"message","text":"<agent message>"}
-
-Examples:
-  # New task (positional)
-  ask_opencode.sh "Add error handling to api.ts" -f src/api.ts
-
-  # With explicit workspace
-  ask_opencode.sh "Fix the bug" -w /other/repo
-
-  # Continue conversation
-  ask_opencode.sh "Also add retry logic" --session <id>
-
-  # Watch mode - stream output while running
-  ask_opencode.sh "Refactor auth module" --watch
-
-  # Check status of running session
-  ask_opencode.sh --status ses_xxxx
+  output_path=<file>           Path to response markdown
+  status_path=<file>           Path to status file (while running)
 USAGE
 }
 

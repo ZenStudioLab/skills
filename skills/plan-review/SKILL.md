@@ -42,9 +42,12 @@ If the review file already exists, this is not the first round, so the reviewer 
 Use the `/{provider}` skill (default: `/codex`) and give the reviewer the following instruction:
 
 ```
+NON-INTERACTIVE: Complete this review autonomously. Do not ask questions or prompt for input.
+
 Read the contents of {plan-file-path} and review it critically as an independent third-party reviewer.
 
 Requirements:
+- NON-INTERACTIVE: do not ask clarifying questions at any point
 - Raise at least 10 concrete and actionable improvement points
 - Each issue must include: issue description + exact location/reference in the plan + improvement suggestion
 - Use severity levels: Critical > High > Medium > Low > Suggestion
@@ -96,6 +99,7 @@ Separate rounds with `---` and append new rounds at the end of the file. Use thi
 3. **Maintain quality and confidence simultaneously** — Every issue must be actionable, specific, and evidence-based. Do not sacrifice specificity for quantity or vice versa
 4. **Be adversarial** — Challenge assumptions, question decisions that lack rationale, and flag incomplete thinking even if it means more issues
 5. **Distinguish severity honestly** — A Medium issue is not High just to hit quotas. Use severity labels accurately
+CONSENSUS_STATUS=NEEDS_REVISION
 ```
 
 When the review file is created for the first time, add this header at the top:
@@ -109,12 +113,18 @@ When the review file is created for the first time, add this header at the top:
 
 ### Step 3: Read the Review and Revise the Plan
 
-After the agent finishes, I read the latest review round in the review file:
+```bash
+# Phase 1: decision (cheap — single grep)
+status=$(grep "^CONSENSUS_STATUS=" "$review_file" | tail -1 | cut -d= -f2)
+# Fallback: if empty or unrecognized value, default to NEEDS_REVISION
+if [[ -z "$status" ]] || [[ ! "$status" =~ ^(NEEDS_REVISION|MOSTLY_GOOD|APPROVED)$ ]]; then
+  status="NEEDS_REVISION"
+fi
 
-1. **Evaluate each issue** raised by the agent one by one.
-2. **Adopt valid suggestions** and revise the plan file.
-3. If rejecting an unreasonable suggestion, optionally note the reason briefly in the plan.
-4. **Update the original plan file directly** instead of creating a new file.
+# Phase 2: read full file ONLY when revision is needed
+# -> NEEDS_REVISION or MOSTLY_GOOD: read full review to evaluate issues and revise plan
+# -> APPROVED: skip full-file read entirely
+```
 
 ### Step 4: Decide Whether to Continue Iterating
 

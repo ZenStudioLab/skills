@@ -4,3 +4,6 @@ claude-gpt-workflow
 *-workspace
 .worktrees/
 __pycache__/
+
+!.planning/codebase/
+!.planning/codebase/**
