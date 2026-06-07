@@ -1,0 +1,14 @@
+[
+  {
+    "query": "Audit our pricing page for Google AI Overviews readiness and show me exactly what to fix in titles, schema, and internal links.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you optimize our blog for GEO by adding llms.txt and chunking every article for answer engines?",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a launch email for our new analytics dashboard.",
+    "should_trigger": false
+  }
+]

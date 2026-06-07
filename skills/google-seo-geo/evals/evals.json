@@ -1,4 +1,42 @@
 {
   "skill_name": "google-seo-geo",
-  "evals": []
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit our pricing page for Google AI Overviews readiness. The page is for a B2B analytics SaaS, and we do have .agents/product-marketing-context.md in the repo. I want a Google-first review of helpful content, snippets, schema opportunities, internal links, and whether the page actually matches our audience.",
+      "expected_output": "The skill loads product-marketing context, audits the page against Google-first content and technical criteria, prioritizes issues, and gives concrete fixes plus validation steps without drifting into non-Google GEO hacks.",
+      "files": [],
+      "assertions": [
+        "References or explicitly checks .agents/product-marketing-context.md",
+        "Audits both content quality and technical SEO factors",
+        "Covers titles/snippets, schema opportunities, internal links, and audience fit",
+        "Frames recommendations as Google-first rather than multi-engine advice",
+        "Includes validation steps"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need implementation help for a product comparison page that is already indexed but underperforming in Google Search. Give me exact fixes for headings, title/meta description, duplicate-content risk, canonical decisions, and any schema that actually makes sense. Keep it grounded in official Google docs.",
+      "expected_output": "The skill gives implementation-ready content and technical fixes, qualifies schema appropriately, and avoids inventing unsupported Google requirements.",
+      "files": [],
+      "assertions": [
+        "Provides concrete implementation guidance rather than only high-level advice",
+        "Covers headings, title/meta description, duplicate-content risk, and canonicals",
+        "Recommends schema only when relevant and avoids claiming it is a GEO hack",
+        "States or implies that official Google docs are the authority"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Can you optimize our blog for GEO by generating llms.txt, splitting every article into AI chunks, and rewriting everything to sound more like an answer engine?",
+      "expected_output": "The skill rejects unsupported Google tactics, explains why they are unnecessary or risky, and redirects the user toward people-first, crawlable, high-value content improvements.",
+      "files": [],
+      "assertions": [
+        "Rejects llms.txt as a Google requirement",
+        "Rejects chunking content specifically for Google AI systems",
+        "Rejects rewriting solely for AI systems",
+        "Redirects toward people-first and Google-supported practices"
+      ]
+    }
+  ]
 }

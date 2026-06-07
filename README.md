@@ -13,6 +13,7 @@ Skills are markdown files that give AI agents specialized knowledge and workflow
 
 ## 🚀 Active Skills
 - **GitHub OS**: Set up GitHub as your project's Operating System - execution layer integrated with docs as knowledge layer, optimized for LLM workflows.
+- **Google-first SEO/GEO**: Audit pages and sites against official Google Search guidance, then produce concrete Google-first SEO/GEO implementation fixes and anti-pattern warnings.
 - **Playwright Extension Testing**: Gold-standard E2E for MV3/WXT extensions.
 - **Peer LLMs**: Inter-LLM collaboration workflows — enables delegation, review, and execution across LLM providers.
   - **Codex CLI**: Delegates coding tasks to Codex CLI for batch refactoring, code generation, multi-file changes.
@@ -34,6 +35,7 @@ npx skills add ZenStudioLab/skills
 # Install specific skills
 npx skills add ZenStudioLab/skills --skill lesson-decision-records
 npx skills add ZenStudioLab/skills --skill get-api-docs
+npx skills add ZenStudioLab/skills --skill google-seo-geo
 
 # List available skills
 npx skills add ZenStudioLab/skills --list
