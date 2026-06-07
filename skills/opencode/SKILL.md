@@ -15,11 +15,11 @@ description: Delegate coding tasks to OpenCode CLI for execution, or discuss imp
 
 ## How to Call the Script
 
-~/.claude/skills/opencode/scripts/ask_opencode.sh "Your request"
-~/.claude/skills/opencode/scripts/ask_opencode.sh "Refactor" --file src/components/UserList.tsx --file src/components/UserDetail.tsx
-~/.claude/skills/opencode/scripts/ask_opencode.sh "Continue task" --session <session_id>
-~/.claude/skills/opencode/scripts/ask_opencode.sh "Complex task" --watch
-~/.claude/skills/opencode/scripts/ask_opencode.sh --status <session_id>
+~/.agents/skills/opencode/scripts/ask_opencode.sh "Your request"
+~/.agents/skills/opencode/scripts/ask_opencode.sh "Refactor" --file src/components/UserList.tsx --file src/components/UserDetail.tsx
+~/.agents/skills/opencode/scripts/ask_opencode.sh "Continue task" --session <session_id>
+~/.agents/skills/opencode/scripts/ask_opencode.sh "Complex task" --watch
+~/.agents/skills/opencode/scripts/ask_opencode.sh --status <session_id>
 
 Output Format:
 session_id=<thread_id>

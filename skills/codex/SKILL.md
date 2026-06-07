@@ -22,19 +22,19 @@ Delegate coding execution to Codex CLI. CodeX turns clear plans into working cod
 The script path is:
 
 ```
-~/.claude/skills/codex/scripts/ask_codex.sh
+~/.agents/skills/codex/scripts/ask_codex.sh
 ```
 
 Minimal invocation:
 
 ```bash
-~/.claude/skills/codex/scripts/ask_codex.sh "Your request in natural language"
+~/.agents/skills/codex/scripts/ask_codex.sh "Your request in natural language"
 ```
 
 With file context:
 
 ```bash
-~/.claude/skills/codex/scripts/ask_codex.sh "Refactor these components to use the new API" \
+~/.agents/skills/codex/scripts/ask_codex.sh "Refactor these components to use the new API" \
   --file src/components/UserList.tsx \
   --file src/components/UserDetail.tsx
 ```
@@ -42,7 +42,7 @@ With file context:
 Multi-turn conversation (continue a previous session):
 
 ```bash
-~/.claude/skills/codex/scripts/ask_codex.sh "Also add retry logic with exponential backoff" \
+~/.agents/skills/codex/scripts/ask_codex.sh "Also add retry logic with exponential backoff" \
   --session <session_id from previous run>
 ```
 
