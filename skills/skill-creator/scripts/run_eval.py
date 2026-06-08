@@ -39,6 +39,37 @@ def find_project_root() -> Path:
     return current
 
 
+def get_skill_path(provider: str, project_root: str | Path, clean_name: str) -> Path:
+    """Return the provider-specific temp skill file path."""
+    base = Path(project_root)
+    if provider == "opencode":
+        return base / ".opencode" / "skills" / clean_name / "SKILL.md"
+    return base / ".claude" / "commands" / f"{clean_name}.md"
+
+
+def _build_opencode_env(env: dict, project_root: str | Path) -> dict:
+    """Inject opencode config so project skills are discoverable."""
+    new_env = env.copy()
+    skills_path = str(Path(project_root) / ".opencode" / "skills")
+    config_content = {"skills": {"paths": [skills_path]}}
+    existing = new_env.get("OPENCODE_CONFIG_CONTENT")
+    if existing:
+        try:
+            merged = json.loads(existing)
+        except json.JSONDecodeError:
+            merged = {}
+        merged_skills = merged.get("skills", {}) if isinstance(merged, dict) else {}
+        paths = merged_skills.get("paths", []) if isinstance(merged_skills, dict) else []
+        if skills_path not in paths:
+            paths.append(skills_path)
+        config_content["skills"]["paths"] = paths
+        for key, value in merged.items():
+            if key != "skills":
+                config_content[key] = value
+    new_env["OPENCODE_CONFIG_CONTENT"] = json.dumps(config_content)
+    return new_env
+
+
 def get_available_providers() -> list[str]:
     """Check which provider CLIs are available."""
     available = []
@@ -51,7 +82,7 @@ def get_available_providers() -> list[str]:
 def build_command(provider: str, query: str, model: str | None = None) -> list[str]:
     """Build the CLI command for the given provider."""
     if provider == "opencode":
-        cmd = ["opencode", "-p", query, "--output-format", "stream-json"]
+        cmd = ["opencode", "run", "--format", "json"]
     elif provider == "claude":
         cmd = [
             "claude",
@@ -71,6 +102,8 @@ def build_command(provider: str, query: str, model: str | None = None) -> list[s
 
     if model:
         cmd.extend(["--model", model])
+    if provider == "opencode":
+        cmd.append(query)
     return cmd
 
 
@@ -85,27 +118,37 @@ def run_single_query(
 ) -> bool:
     """Run a single query and return whether the skill was triggered.
 
-    Creates a command file in .claude/commands/ so it appears in the
-    provider's available_skills list, then runs the provider's CLI with
-    the raw query. If the primary provider fails, tries fallback providers.
+    Creates a provider-specific temporary skill file so it appears in the
+    provider's available_skills list, then runs the provider's CLI with the raw
+    query. If the primary provider fails, tries fallback providers.
     """
     unique_id = uuid.uuid4().hex[:8]
     clean_name = f"{skill_name}-skill-{unique_id}"
-    project_commands_dir = Path(project_root) / ".claude" / "commands"
-    command_file = project_commands_dir / f"{clean_name}.md"
+    skill_file = get_skill_path(provider, project_root, clean_name)
 
     try:
-        project_commands_dir.mkdir(parents=True, exist_ok=True)
+        skill_file.parent.mkdir(parents=True, exist_ok=True)
         indented_desc = "\n  ".join(skill_description.split("\n"))
-        command_content = (
-            f"---\n"
-            f"description: |\n"
-            f"  {indented_desc}\n"
-            f"---\n\n"
-            f"# {skill_name}\n\n"
-            f"This skill handles: {skill_description}\n"
-        )
-        command_file.write_text(command_content)
+        if provider == "opencode":
+            skill_content = (
+                f"---\n"
+                f"name: {clean_name}\n"
+                f"description: |\n"
+                f"  {indented_desc}\n"
+                f"---\n\n"
+                f"# {skill_name}\n\n"
+                f"This skill handles: {skill_description}\n"
+            )
+        else:
+            skill_content = (
+                f"---\n"
+                f"description: |\n"
+                f"  {indented_desc}\n"
+                f"---\n\n"
+                f"# {skill_name}\n\n"
+                f"This skill handles: {skill_description}\n"
+            )
+        skill_file.write_text(skill_content)
 
         providers_to_try = [provider] + FALLBACK_PROVIDERS
         last_error = None
@@ -116,6 +159,8 @@ def run_single_query(
             try:
                 cmd = build_command(p, query, model)
                 env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+                if p == "opencode":
+                    env = _build_opencode_env(env, project_root)
                 return _execute_and_parse(
                     cmd, project_root, env, clean_name, timeout, p
                 )
@@ -128,8 +173,15 @@ def run_single_query(
         )
         return False
     finally:
-        if command_file.exists():
-            command_file.unlink()
+        if skill_file.exists():
+            skill_file.unlink()
+        for parent in skill_file.parents:
+            if parent == Path(project_root):
+                break
+            try:
+                parent.rmdir()
+            except OSError:
+                break
 
 
 def _execute_and_parse(
@@ -184,13 +236,15 @@ def _execute_and_parse(
                     continue
 
                 if provider == "claude":
-                    triggered = _parse_claude_output(
+                    parser_result = _parse_claude_output(
                         event, clean_name, pending_tool_name, accumulated_json
                     )
+                elif provider == "opencode":
+                    parser_result = _parse_opencode_output(event, clean_name)
                 else:
-                    triggered = _parse_generic_output(event, clean_name)
-                if triggered is not None:
-                    return triggered
+                    parser_result = _parse_generic_output(event, clean_name)
+                if parser_result is not None:
+                    return parser_result
 
     finally:
         if process.poll() is None:
@@ -246,6 +300,44 @@ def _parse_claude_output(event, clean_name, pending_tool_name, accumulated_json)
         return False
 
     return None
+
+
+def _parse_opencode_output(event, clean_name):
+    """Parse OpenCode streaming output for skill-trigger evidence."""
+    if event.get("type") == "tool_use":
+        part = event.get("part", {})
+        if part.get("tool") == "skill":
+            skill_input = part.get("state", {}).get("input", {})
+            loaded_name = str(skill_input.get("name", ""))
+            clean_prefix = clean_name.split("-skill-", 1)[0]
+            if clean_name in loaded_name or clean_prefix in loaded_name:
+                return True
+
+    if event.get("type") == "result":
+        return False
+
+    if event.get("type") not in (
+        "step_start",
+        "text",
+        "step_finish",
+        "item_start",
+        "item_started",
+        "item_completed",
+    ):
+        return None
+
+    if _event_contains_text(event, clean_name):
+        return True
+
+    return None
+
+
+def _event_contains_text(value, needle):
+    if isinstance(value, dict):
+        return any(_event_contains_text(child, needle) for child in value.values())
+    if isinstance(value, list):
+        return any(_event_contains_text(child, needle) for child in value)
+    return needle in str(value)
 
 
 def _parse_generic_output(event, clean_name):
