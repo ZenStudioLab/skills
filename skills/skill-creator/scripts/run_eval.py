@@ -47,6 +47,14 @@ def get_skill_path(provider: str, project_root: str | Path, clean_name: str) -> 
     return base / ".claude" / "commands" / f"{clean_name}.md"
 
 
+def get_skill_storage_root(provider: str, project_root: str | Path) -> Path:
+    """Return the provider-specific directory that owns temp skill artifacts."""
+    base = Path(project_root)
+    if provider == "opencode":
+        return base / ".opencode" / "skills"
+    return base / ".claude" / "commands"
+
+
 def _build_opencode_env(env: dict, project_root: str | Path) -> dict:
     """Inject opencode config so project skills are discoverable."""
     new_env = env.copy()
@@ -125,6 +133,7 @@ def run_single_query(
     unique_id = uuid.uuid4().hex[:8]
     clean_name = f"{skill_name}-skill-{unique_id}"
     skill_file = get_skill_path(provider, project_root, clean_name)
+    storage_root = get_skill_storage_root(provider, project_root)
 
     try:
         skill_file.parent.mkdir(parents=True, exist_ok=True)
@@ -150,7 +159,7 @@ def run_single_query(
             )
         skill_file.write_text(skill_content)
 
-        providers_to_try = [provider] + FALLBACK_PROVIDERS
+        providers_to_try = [provider] if provider == "opencode" else [provider] + FALLBACK_PROVIDERS
         last_error = None
 
         for p in providers_to_try:
@@ -176,7 +185,7 @@ def run_single_query(
         if skill_file.exists():
             skill_file.unlink()
         for parent in skill_file.parents:
-            if parent == Path(project_root):
+            if parent == storage_root:
                 break
             try:
                 parent.rmdir()
@@ -235,14 +244,32 @@ def _execute_and_parse(
                 except json.JSONDecodeError:
                     continue
 
-                if provider == "claude":
-                    parser_result = _parse_claude_output(
-                        event, clean_name, pending_tool_name, accumulated_json
-                    )
-                elif provider == "opencode":
-                    parser_result = _parse_opencode_output(event, clean_name)
-                else:
-                    parser_result = _parse_generic_output(event, clean_name)
+                parser_result = _parse_provider_event(
+                    provider,
+                    event,
+                    clean_name,
+                    pending_tool_name,
+                    accumulated_json,
+                )
+                if parser_result is not None:
+                    return parser_result
+
+        if buffer.strip():
+            for line in buffer.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                parser_result = _parse_provider_event(
+                    provider,
+                    event,
+                    clean_name,
+                    pending_tool_name,
+                    accumulated_json,
+                )
                 if parser_result is not None:
                     return parser_result
 
@@ -302,6 +329,18 @@ def _parse_claude_output(event, clean_name, pending_tool_name, accumulated_json)
     return None
 
 
+def _parse_provider_event(
+    provider, event, clean_name, pending_tool_name, accumulated_json
+):
+    if provider == "claude":
+        return _parse_claude_output(
+            event, clean_name, pending_tool_name, accumulated_json
+        )
+    if provider == "opencode":
+        return _parse_opencode_output(event, clean_name)
+    return _parse_generic_output(event, clean_name)
+
+
 def _parse_opencode_output(event, clean_name):
     """Parse OpenCode streaming output for skill-trigger evidence."""
     if event.get("type") == "tool_use":
@@ -309,8 +348,7 @@ def _parse_opencode_output(event, clean_name):
         if part.get("tool") == "skill":
             skill_input = part.get("state", {}).get("input", {})
             loaded_name = str(skill_input.get("name", ""))
-            clean_prefix = clean_name.split("-skill-", 1)[0]
-            if clean_name in loaded_name or clean_prefix in loaded_name:
+            if loaded_name == clean_name:
                 return True
 
     if event.get("type") == "result":

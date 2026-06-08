@@ -33,11 +33,23 @@ class RunEvalOpencodeTests(unittest.TestCase):
             "type": "tool_use",
             "part": {
                 "tool": "skill",
-                "state": {"input": {"name": "google-seo-geo-trigger-test"}},
+                "state": {"input": {"name": clean_name}},
             },
         }
 
         self.assertTrue(run_eval._parse_opencode_output(event, clean_name))
+
+    def test_parse_opencode_event_rejects_same_prefix_other_skill(self):
+        clean_name = "google-seo-geo-skill-abcd1234"
+        event = {
+            "type": "tool_use",
+            "part": {
+                "tool": "skill",
+                "state": {"input": {"name": "google-seo-geo-trigger-test"}},
+            },
+        }
+
+        self.assertIsNone(run_eval._parse_opencode_output(event, clean_name))
 
     def test_parse_opencode_nonmatching_step_does_not_stop_scan(self):
         clean_name = "google-seo-geo-skill-abcd1234"
