@@ -60,6 +60,15 @@ class RunEvalOpencodeTests(unittest.TestCase):
 
         self.assertIsNone(run_eval._parse_opencode_output(event, clean_name))
 
+    def test_parse_opencode_text_echo_does_not_count_as_trigger(self):
+        clean_name = "google-seo-geo-skill-abcd1234"
+        event = {
+            "type": "text",
+            "part": {"text": f"I saw {clean_name} in a log line"},
+        }
+
+        self.assertIsNone(run_eval._parse_opencode_output(event, clean_name))
+
 
 if __name__ == "__main__":
     unittest.main()

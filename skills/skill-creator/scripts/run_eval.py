@@ -353,29 +353,7 @@ def _parse_opencode_output(event, clean_name):
 
     if event.get("type") == "result":
         return False
-
-    if event.get("type") not in (
-        "step_start",
-        "text",
-        "step_finish",
-        "item_start",
-        "item_started",
-        "item_completed",
-    ):
-        return None
-
-    if _event_contains_text(event, clean_name):
-        return True
-
     return None
-
-
-def _event_contains_text(value, needle):
-    if isinstance(value, dict):
-        return any(_event_contains_text(child, needle) for child in value.values())
-    if isinstance(value, list):
-        return any(_event_contains_text(child, needle) for child in value)
-    return needle in str(value)
 
 
 def _parse_generic_output(event, clean_name):
