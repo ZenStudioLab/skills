@@ -22,6 +22,7 @@ Skills are markdown files that give AI agents specialized knowledge and workflow
   - **Plan Execute**: Executes finalized plans by delegating to a coding agent with Claude/codex orchestrator.
 - **Lesson Decision Records**: Systematic recording of AI mistakes and learnings using ADR-inspired format.
 - **Context Hub Get API Docs**: Fetch current API documentation for third-party libraries and SDKs via chub CLI.
+- **GitHub CLI (gh)**: Complete GitHub CLI reference covering 20+ command categories (repos, issues, PRs, Actions, projects, releases, gists, codespaces) with 100+ subcommands, authentication, JSON/jq filtering, and automation workflows.
 
 ## Installation
 
